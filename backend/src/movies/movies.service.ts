@@ -5,6 +5,12 @@ import { Movie } from './movie.entity';
 
 type MovieSort = 'oldest' | 'newest';
 
+interface FindMoviesOptions {
+  page?: number;
+  limit?: number;
+  sort?: MovieSort;
+}
+
 @Injectable()
 export class MoviesService {
   constructor(
@@ -12,15 +18,8 @@ export class MoviesService {
     private readonly movieRepository: Repository<Movie>,
   ) {}
 
-  async findAll({
-    page = 1,
-    limit = 10,
-    sort = 'newest',
-  }: {
-    page?: number;
-    limit?: number;
-    sort?: MovieSort;
-  }) {
+  async findAll(options: FindMoviesOptions | null = {}) {
+    const { page = 1, limit = 10, sort = 'newest' } = options ?? {};
     const query = this.movieRepository
       .createQueryBuilder('movie')
       .leftJoin('reviews', 'review', 'review.movie_id = movie.id')
@@ -37,8 +36,8 @@ export class MoviesService {
 
     query.orderBy('movie.releaseYear', sort === 'oldest' ? 'ASC' : 'DESC');
 
-    const safePage = Math.max(1, page);
-    const safeLimit = Math.max(1, limit);
+    const safePage = Number.isFinite(page) ? Math.max(1, page) : 1;
+    const safeLimit = Number.isFinite(limit) ? Math.max(1, limit) : 10;
     query.skip((safePage - 1) * safeLimit).take(safeLimit);
 
     const [entities, total] = await query.getManyAndCount();
