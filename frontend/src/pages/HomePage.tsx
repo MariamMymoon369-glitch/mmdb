@@ -20,24 +20,33 @@ function HomePage() {
   const movies = data?.data ?? [];
 
   return (
-    <Box component="main" sx={{ maxWidth: 1180, mx: 'auto', px: { xs: 2, md: 5 }, py: { xs: 3, md: 6 } }}>
+    <Box
+      component="main"
+      sx={{
+        maxWidth: 1200,
+        mx: 'auto',
+        px: { xs: 2, sm: 3, md: 4 },
+        py: { xs: 3, md: 5 },
+      }}
+    >
       <Stack
-        direction={{ xs: 'column', sm: 'row' }}
-        spacing={2}
+        direction="row"
         sx={{
-          mb: { xs: 3, md: 5 },
-          alignItems: { xs: 'stretch', sm: 'center' },
+          mb: 4,
+          alignItems: 'center',
           justifyContent: 'space-between',
         }}
       >
-        <Box>
-          <Typography sx={{ color: 'primary.main', fontSize: 12, fontWeight: 700, letterSpacing: '0.18em', textTransform: 'uppercase', mb: 1 }}>
-            MMDB / Cinema archive
-          </Typography>
-          <Typography component="h1" variant="h1" sx={{ fontSize: { xs: 38, md: 54 }, lineHeight: 1 }}>
-            All Movies
-          </Typography>
-        </Box>
+        <Typography
+          component="h1"
+          sx={{
+            fontSize: '1.75rem',
+            fontWeight: 700,
+            color: '#003055',
+          }}
+        >
+          All Movies
+        </Typography>
         <MovieSort
           sort={sort}
           onChange={(value) => {
@@ -48,28 +57,97 @@ function HomePage() {
       </Stack>
 
       {loading && (
-        <Typography sx={{ py: 8, textAlign: 'center' }}>Loading...</Typography>
+        <Typography sx={{ py: 8, textAlign: 'center', color: '#64748B' }}>
+          Loading...
+        </Typography>
       )}
+
       {error && (
-        <Alert severity="error" sx={{ bgcolor: 'rgba(211, 75, 75, .12)' }}>
-          Could not load movies.
-          <br />
-          Please try again.
+        <Alert severity="error" sx={{ borderRadius: '12px' }}>
+          Could not load movies. Please try again.
         </Alert>
       )}
+
       {!loading && !error && movies.length === 0 && (
-        <Alert severity="info" sx={{ bgcolor: 'background.paper' }}>No movies found.</Alert>
+        <Alert severity="info" sx={{ borderRadius: '12px' }}>
+          No movies found.
+        </Alert>
       )}
+
       {!loading && !error && movies.length > 0 && <MovieGrid movies={movies} />}
 
       {!!data && data.totalPages > 1 && (
-        <Pagination
-          count={data.totalPages}
-          page={page}
-          onChange={(_, value) => setPage(value)}
-          sx={{ mt: 4, display: 'flex', justifyContent: 'center' }}
-        />
-      )}
+        <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
+            <Pagination
+            count={data.totalPages}
+            page={page}
+            onChange={(_, value) => setPage(value)}
+            boundaryCount={1}
+            siblingCount={0}
+
+            sx={{
+                '& .MuiPagination-ul': {
+                gap: '8px',
+                },
+
+                '& .MuiPaginationItem-root': {
+                fontWeight: 600,
+                fontSize: '0.875rem',
+                color: '#1E293B',
+                bgcolor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: '4px',
+                width: 32,
+                height: 32,
+                minWidth: 32,
+                margin: 0,
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                boxSizing: 'border-box',
+                transition: 'all 0.15s ease-in-out',
+                '&:hover': {
+                    bgcolor: '#F8FAFC',
+                    borderColor: '#CBD5E1',
+                },
+                },
+
+                '& .MuiPaginationItem-page.Mui-selected': {
+                bgcolor: '#FFFFFF !important',
+                color: '#418CFB',
+                borderColor: '#418CFB',
+                borderWidth: '1.5px',
+                fontWeight: 700,
+                },
+
+                '& .MuiPaginationItem-previousNext': {
+                bgcolor: '#FFFFFF',
+                color: '#64748B',
+                border: '1px solid #E2E8F0',
+                borderRadius: 0,
+                '&:hover': {
+                    bgcolor: '#F8FAFC',
+                    color: '#0F172A',
+                },
+                '&.Mui-disabled': {
+                    opacity: 0.5,
+                    bgcolor: '#697586',
+                    color: '#E5E5E5',
+                },
+                },
+
+                '& .MuiPaginationItem-ellipsis': {
+                bgcolor: '#FFFFFF',
+                border: '1px solid #E2E8F0',
+                borderRadius: 0,
+                color: '#64748B',
+                fontWeight: 600,
+                lineHeight: '32px',
+                },
+            }}
+            />
+        </Box>
+        )}
     </Box>
   );
 }

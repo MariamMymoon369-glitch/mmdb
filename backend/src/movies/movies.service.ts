@@ -11,6 +11,12 @@ interface FindMoviesOptions {
   sort?: MovieSort;
 }
 
+interface RawMovieRow {
+  movie_id: number;
+  rating: string | number | null;
+  reviewCount?: string | number;
+}
+
 @Injectable()
 export class MoviesService {
   constructor(
@@ -19,7 +25,11 @@ export class MoviesService {
   ) {}
 
   async findAll(options: FindMoviesOptions | null = {}) {
-    const { page = 1, limit = 10, sort = 'newest' } = options ?? {};
+    const { page = 1, limit = 8, sort = 'newest' } = options ?? {};
+
+    const safePage = Number.isFinite(page) ? Math.max(1, page) : 1;
+    const safeLimit = Number.isFinite(limit) ? Math.max(1, limit) : 8;
+
     const query = this.movieRepository
       .createQueryBuilder('movie')
       .leftJoin('reviews', 'review', 'review.movie_id = movie.id')
@@ -32,18 +42,33 @@ export class MoviesService {
       ])
       .addSelect('COALESCE(AVG(review.rating), 0)', 'rating')
       .addSelect('COUNT(review.id)', 'reviewCount')
-      .groupBy('movie.id');
+      .groupBy('movie.id')
+      .orderBy('movie.releaseYear', sort === 'oldest' ? 'ASC' : 'DESC')
+      .offset((safePage - 1) * safeLimit)
+      .limit(safeLimit);
 
-    query.orderBy('movie.releaseYear', sort === 'oldest' ? 'ASC' : 'DESC');
+    const { entities, raw } = await query.getRawAndEntities();
+    const typedRawRows = raw as RawMovieRow[];
+    const total = await this.movieRepository.count();
+    const data = entities.map((movie) => {
+      const rawRow = typedRawRows.find((r) => r.movie_id === movie.id);
+      const rawRating = rawRow?.rating ?? 0;
 
-    const safePage = Number.isFinite(page) ? Math.max(1, page) : 1;
-    const safeLimit = Number.isFinite(limit) ? Math.max(1, limit) : 10;
-    query.skip((safePage - 1) * safeLimit).take(safeLimit);
+      const numericRating =
+        typeof rawRating === 'number'
+          ? rawRating
+          : parseFloat(String(rawRating));
 
-    const [entities, total] = await query.getManyAndCount();
+      return {
+        ...movie,
+        rating: Number.isNaN(numericRating)
+          ? 0
+          : parseFloat(numericRating.toFixed(1)),
+      };
+    });
 
     return {
-      data: entities,
+      data,
       page: safePage,
       limit: safeLimit,
       total,

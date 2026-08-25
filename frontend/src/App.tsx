@@ -6,16 +6,18 @@ import MoviePlaceholderPage from './pages/MoviePlaceholderPage';
 
 const theme = createTheme({
   palette: {
-    mode: 'dark',
-    background: { default: '#0d0d0f', paper: '#17171a' },
-    primary: { main: '#e7b85c', contrastText: '#17130b' },
-    text: { primary: '#f7f3eb', secondary: '#aaa6a0' },
+    mode: 'light',
+    background: {
+      default: '#f0f1f2',
+      paper: '#FFFFFF',
+    },
+    text: {
+      primary: '#003055',
+      secondary: '#7C7C7C',
+    },
   },
-  shape: { borderRadius: 10 },
   typography: {
-    fontFamily: '"DM Sans", "Helvetica Neue", sans-serif',
-    h1: { fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700 },
-    h2: { fontFamily: '"Playfair Display", Georgia, serif', fontWeight: 700 },
+    fontFamily: '"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
   },
 });
 

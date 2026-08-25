@@ -1,4 +1,4 @@
-import { Box } from '@mui/material';
+import { Grid } from '@mui/material';
 import MovieCard, { type Movie } from './MovieCard';
 
 interface MovieGridProps {
@@ -7,22 +7,16 @@ interface MovieGridProps {
 
 function MovieGrid({ movies }: MovieGridProps) {
   return (
-    <Box
-      sx={{
-        display: 'grid',
-        gap: { xs: 2, md: 3 },
-        gridTemplateColumns: {
-          xs: 'repeat(1, minmax(0, 1fr))',
-          sm: 'repeat(2, minmax(0, 1fr))',
-          md: 'repeat(3, minmax(0, 1fr))',
-          lg: 'repeat(4, minmax(0, 1fr))',
-        },
-      }}
-    >
+    <Grid container spacing={3}>
       {movies.map((movie) => (
-        <MovieCard key={movie.id} movie={movie} />
+        <Grid
+          key={movie.id}
+          size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
+        >
+          <MovieCard movie={movie} />
+        </Grid>
       ))}
-    </Box>
+    </Grid>
   );
 }
 

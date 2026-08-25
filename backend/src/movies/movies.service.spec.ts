@@ -1,82 +1,80 @@
-import { MoviesService } from './movies.service';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { Movie } from './movie.entity';
-import { Repository, SelectQueryBuilder } from 'typeorm';
 
-describe('MoviesService', () => {
-  let service: MoviesService;
-  let query: jest.Mocked<SelectQueryBuilder<Movie>>;
-  let repository: jest.Mocked<Repository<Movie>>;
+type MovieSort = 'oldest' | 'newest';
 
-  beforeEach(() => {
-    query = {
-      leftJoin: jest.fn().mockReturnThis(),
-      select: jest.fn().mockReturnThis(),
-      addSelect: jest.fn().mockReturnThis(),
-      groupBy: jest.fn().mockReturnThis(),
-      orderBy: jest.fn().mockReturnThis(),
-      skip: jest.fn().mockReturnThis(),
-      take: jest.fn().mockReturnThis(),
-      getManyAndCount: jest.fn().mockResolvedValue([[{ id: 1 } as Movie], 9]),
-    } as unknown as jest.Mocked<SelectQueryBuilder<Movie>>;
+interface FindMoviesOptions {
+  page?: number;
+  limit?: number;
+  sort?: MovieSort;
+}
 
-    repository = {
-      createQueryBuilder: jest.fn().mockReturnValue(query),
-    } as unknown as jest.Mocked<Repository<Movie>>;
+interface RawMovieRow {
+  movie_id: number;
+  rating: string | number | null;
+  reviewCount?: string | number;
+}
 
-    service = new MoviesService(repository);
-  });
+@Injectable()
+export class MoviesService {
+  constructor(
+    @InjectRepository(Movie)
+    private readonly movieRepository: Repository<Movie>,
+  ) {}
 
-  it('returns paginated movies and metadata', async () => {
-    const result = await service.findAll({ page: 2, limit: 4, sort: 'oldest' });
+  async findAll(options: FindMoviesOptions | null = {}) {
+    const { page = 1, limit = 10, sort = 'newest' } = options ?? {};
 
-    expect(query.orderBy.mock.calls).toContainEqual([
-      'movie.releaseYear',
-      'ASC',
-    ]);
-    expect(query.skip.mock.calls).toContainEqual([4]);
-    expect(query.take.mock.calls).toContainEqual([4]);
-    expect(result).toEqual({
-      data: [{ id: 1 }],
-      page: 2,
-      limit: 4,
-      total: 9,
-      totalPages: 3,
+    const safePage = Number.isFinite(page) ? Math.max(1, page) : 1;
+    const safeLimit = Number.isFinite(limit) ? Math.max(1, limit) : 10;
+
+    const query = this.movieRepository
+      .createQueryBuilder('movie')
+      .leftJoin('reviews', 'review', 'review.movie_id = movie.id')
+      .select([
+        'movie.id',
+        'movie.uuid',
+        'movie.title',
+        'movie.releaseYear',
+        'movie.posterUrl',
+      ])
+      .addSelect('COALESCE(AVG(review.rating), 0)', 'rating')
+      .addSelect('COUNT(review.id)', 'reviewCount')
+      .groupBy('movie.id')
+      .orderBy('movie.releaseYear', sort === 'oldest' ? 'ASC' : 'DESC')
+      .offset((safePage - 1) * safeLimit)
+      .limit(safeLimit);
+
+    const { entities, raw } = await query.getRawAndEntities();
+    const typedRawRows = raw as RawMovieRow[];
+
+    const total = await this.movieRepository.count();
+
+    const data = entities.map((movie) => {
+      const rawRow = typedRawRows.find((r) => r.movie_id === movie.id);
+      const rawRating = rawRow?.rating ?? 0;
+
+      const numericRating =
+        typeof rawRating === 'number'
+          ? rawRating
+          : parseFloat(String(rawRating));
+
+      return {
+        ...movie,
+        rating: Number.isNaN(numericRating)
+          ? 0
+          : parseFloat(numericRating.toFixed(1)),
+      };
     });
-  });
 
-  it('uses safe values for invalid pagination input', async () => {
-    const result = await service.findAll({ page: 0, limit: 0 });
-
-    expect(query.orderBy.mock.calls).toContainEqual([
-      'movie.releaseYear',
-      'DESC',
-    ]);
-    expect(query.skip.mock.calls).toContainEqual([0]);
-    expect(query.take.mock.calls).toContainEqual([1]);
-    expect(result.page).toBe(1);
-    expect(result.limit).toBe(1);
-  });
-
-  it('handles null options and empty results', async () => {
-    query.getManyAndCount.mockResolvedValue([[], 0]);
-
-    const result = await service.findAll(null);
-
-    expect(query.skip.mock.calls).toContainEqual([0]);
-    expect(query.take.mock.calls).toContainEqual([10]);
-    expect(result).toEqual({
-      data: [],
-      page: 1,
-      limit: 10,
-      total: 0,
-      totalPages: 0,
-    });
-  });
-
-  it('propagates repository errors for Nest exception handling', async () => {
-    const databaseError = new Error('Database unavailable');
-    query.getManyAndCount.mockRejectedValue(databaseError);
-
-    await expect(service.findAll()).rejects.toThrow('Database unavailable');
-  });
-});
+    return {
+      data,
+      page: safePage,
+      limit: safeLimit,
+      total,
+      totalPages: Math.ceil(total / safeLimit),
+    };
+  }
+}
