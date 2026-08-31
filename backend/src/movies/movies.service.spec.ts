@@ -6,7 +6,6 @@ import { Movie } from './movie.entity';
 describe('MoviesService', () => {
   let service: MoviesService;
 
-  // 1. إنشاء (Mock) للـ Repository عشان مش عايزين نضرب الداتابيز الحقيقية في التیست
   const mockMovieRepository = {
     findAndCount: jest.fn(),
   };
@@ -26,17 +25,14 @@ describe('MoviesService', () => {
   });
 
   afterEach(() => {
-    jest.clearAllMocks(); // تنظيف الموكس بعد كل اختبار عشان مايأثروش على بعض
+    jest.clearAllMocks();
   });
 
-  // الاختبار الأول: التأكد إن السيرفيس شغالة وموجودة
   it('should be defined', () => {
     expect(service).toBeDefined();
   });
 
-  // الاختبار التاني: التأكد إنها بترجع القيم الافتراضية صح لو مفيش parameters
   it('should return paginated movies with default parameters', async () => {
-    // بيانات وهمية
     const mockMovies = [
       { id: 1, title: 'Barbie', releaseYear: 2023, rating: 7.5 },
       { id: 2, title: 'Oppenheimer', releaseYear: 2023, rating: 8.4 },
@@ -54,7 +50,6 @@ describe('MoviesService', () => {
       totalPages: 1,
     });
 
-    // التأكد إن TypeORM خد القيم الافتراضية (newest, page 1, limit 8)
     expect(mockMovieRepository.findAndCount).toHaveBeenCalledWith({
       order: { releaseYear: 'DESC', id: 'ASC' },
       skip: 0,
@@ -62,16 +57,14 @@ describe('MoviesService', () => {
     });
   });
 
-  // الاختبار التالت: التأكد إنها بتحسب الصفحات والترتيب صح
   it('should handle custom sorting and pagination correctly', async () => {
     mockMovieRepository.findAndCount.mockResolvedValue([[], 50]);
 
-    // طلب الصفحة التانية، 5 أفلام في الصفحة، وترتيب من الأقدم للأحدث
     await service.findAll({ page: 2, limit: 5, sort: 'oldest' });
 
     expect(mockMovieRepository.findAndCount).toHaveBeenCalledWith({
       order: { releaseYear: 'ASC', id: 'ASC' },
-      skip: 5, // (2 - 1) * 5 = 5
+      skip: 5,
       take: 5,
     });
   });

@@ -21,7 +21,6 @@ export class User {
     default: () => 'now()',
   })
   createdAt!: Date;
-  //reviews: any;
 
   @OneToMany(() => Review, (review) => review.user)
   reviews!: Review[];

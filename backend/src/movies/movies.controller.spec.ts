@@ -1,42 +1,53 @@
+/* eslint-disable @typescript-eslint/unbound-method */
+import { Test, TestingModule } from '@nestjs/testing';
 import { MoviesController } from './movies.controller';
 import { MoviesService } from './movies.service';
+import { GetMoviesDto } from './dto/get-movies.dto';
 
 describe('MoviesController', () => {
   let controller: MoviesController;
-  let service: { findAll: jest.Mock };
+  let service: MoviesService;
 
-  beforeEach(() => {
-    service = { findAll: jest.fn().mockResolvedValue({ data: [] }) };
-    controller = new MoviesController(service as unknown as MoviesService);
+  const mockMoviesService = {
+    findAll: jest.fn().mockResolvedValue({ data: [], totalPages: 1 }),
+  };
+
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      controllers: [MoviesController],
+      providers: [
+        {
+          provide: MoviesService,
+          useValue: mockMoviesService,
+        },
+      ],
+    }).compile();
+
+    controller = module.get<MoviesController>(MoviesController);
+    service = module.get<MoviesService>(MoviesService);
   });
 
-  it('uses the default page, limit, and newest sort', async () => {
-    await controller.getMovies();
-
-    expect(service.findAll).toHaveBeenCalledWith({
-      page: 1,
-      limit: 8,
-      sort: 'newest',
-    });
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('converts query parameters and accepts the oldest sort', async () => {
-    await controller.getMovies('2', '12', 'oldest');
-
-    expect(service.findAll).toHaveBeenCalledWith({
-      page: 2,
-      limit: 12,
-      sort: 'oldest',
-    });
+  it('should be defined', () => {
+    expect(controller).toBeDefined();
   });
 
-  it('falls back to newest for unsupported sort values', async () => {
-    await controller.getMovies('bad', 'bad', 'popular');
+  it('passes the default query parameters to the service', async () => {
+    const query: GetMoviesDto = { page: 1, limit: 8, sort: 'newest' };
 
-    expect(service.findAll).toHaveBeenCalledWith({
-      page: 1,
-      limit: 8,
-      sort: 'newest',
-    });
+    await controller.getMovies(query);
+
+    expect(service.findAll).toHaveBeenCalledWith(query);
+  });
+
+  it('passes the customized query parameters to the service', async () => {
+    const query: GetMoviesDto = { page: 2, limit: 12, sort: 'oldest' };
+
+    await controller.getMovies(query);
+
+    expect(service.findAll).toHaveBeenCalledWith(query);
   });
 });
