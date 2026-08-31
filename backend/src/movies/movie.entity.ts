@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Review } from '../reviews/review.entity';
 
 @Entity('movies')
 export class Movie {
@@ -19,17 +20,26 @@ export class Movie {
   releaseYear!: number;
 
   @Column({ type: 'integer', nullable: true, name: 'runtime_minutes' })
-  runtimeMinutes: number | null = null;
+  runtimeMinutes?: number | null;
 
   @Column({ type: 'text', nullable: true })
-  overview: string | null = null;
+  overview?: string | null;
 
   @Column({ type: 'text', nullable: true, name: 'poster_url' })
-  posterUrl: string | null = null;
+  posterUrl?: string | null;
 
   @Column({ type: 'text', nullable: true, name: 'trailer_url' })
-  trailerUrl: string | null = null;
+  trailerUrl?: string | null;
 
   @Column({ type: 'text', nullable: true })
-  language: string | null = null;
+  language?: string | null;
+  // database change
+  @Column({ type: 'numeric', precision: 3, scale: 1, default: 0 })
+  rating!: number;
+
+  @Column({ type: 'integer', name: 'review_count', default: 0 })
+  reviewCount!: number;
+
+  @OneToMany(() => Review, (review) => review.movieId)
+  reviews!: Review[];
 }

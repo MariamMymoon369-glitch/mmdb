@@ -2,19 +2,14 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { Movie } from './movie.entity';
+import { GetMoviesDto } from './dto/get-movies.dto';
 
-type MovieSort = 'oldest' | 'newest';
-
-interface FindMoviesOptions {
-  page?: number;
-  limit?: number;
-  sort?: MovieSort;
-}
-
-interface RawMovieRow {
-  movie_id: number;
-  rating: string | number | null;
-  reviewCount?: string | number;
+export interface MoviesPaginatedResponse {
+  data: Movie[];
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
 }
 
 @Injectable()
@@ -24,55 +19,26 @@ export class MoviesService {
     private readonly movieRepository: Repository<Movie>,
   ) {}
 
-  async findAll(options: FindMoviesOptions | null = {}) {
-    const { page = 1, limit = 8, sort = 'newest' } = options ?? {};
+  async findAll(queryDto: GetMoviesDto): Promise<MoviesPaginatedResponse> {
+    const { page = 1, limit = 8, sort = 'newest' } = queryDto;
 
-    const safePage = Number.isFinite(page) ? Math.max(1, page) : 1;
-    const safeLimit = Number.isFinite(limit) ? Math.max(1, limit) : 8;
+    const orderDirection = sort === 'oldest' ? 'ASC' : 'DESC';
 
-    const query = this.movieRepository
-      .createQueryBuilder('movie')
-      .leftJoin('reviews', 'review', 'review.movie_id = movie.id')
-      .select([
-        'movie.id',
-        'movie.uuid',
-        'movie.title',
-        'movie.releaseYear',
-        'movie.posterUrl',
-      ])
-      .addSelect('COALESCE(AVG(review.rating), 0)', 'rating')
-      .addSelect('COUNT(review.id)', 'reviewCount')
-      .groupBy('movie.id')
-      .orderBy('movie.releaseYear', sort === 'oldest' ? 'ASC' : 'DESC')
-      .offset((safePage - 1) * safeLimit)
-      .limit(safeLimit);
-
-    const { entities, raw } = await query.getRawAndEntities();
-    const typedRawRows = raw as RawMovieRow[];
-    const total = await this.movieRepository.count();
-    const data = entities.map((movie) => {
-      const rawRow = typedRawRows.find((r) => r.movie_id === movie.id);
-      const rawRating = rawRow?.rating ?? 0;
-
-      const numericRating =
-        typeof rawRating === 'number'
-          ? rawRating
-          : parseFloat(String(rawRating));
-
-      return {
-        ...movie,
-        rating: Number.isNaN(numericRating)
-          ? 0
-          : parseFloat(numericRating.toFixed(1)),
-      };
+    const [data, total] = await this.movieRepository.findAndCount({
+      order: {
+        releaseYear: orderDirection,
+        id: 'ASC',
+      },
+      skip: (page - 1) * limit,
+      take: limit,
     });
 
     return {
       data,
-      page: safePage,
-      limit: safeLimit,
+      page,
+      limit,
       total,
-      totalPages: Math.ceil(total / safeLimit),
+      totalPages: Math.ceil(total / limit),
     };
   }
 }

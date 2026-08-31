@@ -1,4 +1,5 @@
-import { FormControl, MenuItem, Select, Box, Typography } from '@mui/material';
+import { useState } from 'react';
+import { Button, Menu, MenuItem } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
 interface MovieSortProps {
@@ -7,69 +8,72 @@ interface MovieSortProps {
 }
 
 function MovieSort({ sort, onChange }: MovieSortProps) {
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = (value?: 'newest' | 'oldest') => {
+    setAnchorEl(null);
+    if (value) {
+      onChange(value);
+    }
+  };
+
   return (
-    <FormControl size="small" sx={{ width: 107 }}>
-      <Select
-        value={sort}
-        IconComponent={() => null}
-        onChange={(e) => onChange(e.target.value as 'newest' | 'oldest')}
-        displayEmpty
-        renderValue={() => (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '10px',
-            }}
-          >
-            <FilterListIcon
-              sx={{
-                fontSize: 20,
-                color: '#697586',
-              }}
-            />
-            <Typography
-              sx={{
-                fontSize: '0.875rem',
-                fontWeight: 500,
-                color: '#697586',
-                lineHeight: 1,
-                whiteSpace: 'nowrap',
-              }}
-            >
-              Sort by
-            </Typography>
-          </Box>
-        )}
+    <>
+      <Button
+        variant="outlined"
+        onClick={handleClick}
+        startIcon={<FilterListIcon sx={{ color: 'grey.600' }} />}
         sx={{
-          width: '107px',
-          height: '40px',
           borderRadius: '60px',
-          bgcolor: '#f0f1f2',
-          border: '1px solid #E5E5E5',
-          boxSizing: 'border-box',
-          '& .MuiOutlinedInput-notchedOutline': {
-            border: 'none',
-          },
-          '&:hover .MuiOutlinedInput-notchedOutline': {
-            border: 'none',
-          },
-          '&.Mui-focused .MuiOutlinedInput-notchedOutline': {
-            border: 'none',
-          },
-          '& .MuiSelect-select': {
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '0 !important',
+          color: 'grey.600',
+          borderColor: 'grey.200',
+          bgcolor: 'background.default',
+          textTransform: 'none',
+          fontWeight: 500,
+          height: '40px',
+          px: 2,
+          '&:hover': {
+            borderColor: 'grey.300',
+            bgcolor: 'grey.50',
           },
         }}
       >
-        <MenuItem value="newest">Newest first</MenuItem>
-        <MenuItem value="oldest">Oldest first</MenuItem>
-      </Select>
-    </FormControl>
+        Sort by
+      </Button>
+      
+      <Menu
+        anchorEl={anchorEl}
+        open={open}
+        onClose={() => handleClose()}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'right',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'right',
+        }}
+      >
+        <MenuItem 
+          selected={sort === 'newest'} 
+          onClick={() => handleClose('newest')}
+        >
+          Newest first
+        </MenuItem>
+        <MenuItem 
+          selected={sort === 'oldest'} 
+          onClick={() => handleClose('oldest')}
+        >
+          Oldest first
+        </MenuItem>
+      </Menu>
+    </>
   );
 }
 

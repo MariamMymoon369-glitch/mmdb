@@ -1,3 +1,4 @@
+import React from 'react';
 import {
   Box,
   Card,
@@ -9,21 +10,13 @@ import {
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import { useNavigate } from 'react-router-dom';
-
-export interface Movie {
-  id: number;
-  uuid: string;
-  title: string;
-  releaseYear: number;
-  posterUrl: string | null;
-  rating?: number;
-}
+import { type Movie } from '../../types/movie';
 
 interface MovieCardProps {
   movie: Movie;
 }
 
-function MovieCard({ movie }: MovieCardProps) {
+export const MovieCard: React.FC<MovieCardProps> = React.memo(({ movie }) => {
   const navigate = useNavigate();
 
   return (
@@ -31,7 +24,7 @@ function MovieCard({ movie }: MovieCardProps) {
       elevation={0}
       sx={{
         borderRadius: '16px',
-        bgcolor: '#FFFFFF',
+        bgcolor: 'background.paper',
         p: 2,
         height: '100%',
         display: 'flex',
@@ -51,7 +44,8 @@ function MovieCard({ movie }: MovieCardProps) {
             justifyContent: 'flex-start',
             
             '&:hover': {
-            bgcolor: 'transparent',
+              bgcolor: '#F8FAFC', 
+              transform: 'translateY(-2px)', 
             },
             
             '& .MuiCardActionArea-focusHighlight': {
@@ -65,7 +59,7 @@ function MovieCard({ movie }: MovieCardProps) {
             aspectRatio: '2 / 3',
             borderRadius: '12px',
             overflow: 'hidden',
-            bgcolor: '#F1F5F9',
+            bgcolor: 'grey.100',
           }}
         >
           <CardMedia
@@ -97,10 +91,10 @@ function MovieCard({ movie }: MovieCardProps) {
               sx={{
                 fontWeight: 700,
                 fontSize: '0.95rem',
-                color: '#1a325a',
+                color: 'primary.dark',
               }}
             >
-              {(movie.rating ?? 0).toFixed(1)}
+              {Number(movie.rating).toFixed(1)}
             </Typography>
           </Stack>
 
@@ -110,7 +104,7 @@ function MovieCard({ movie }: MovieCardProps) {
             sx={{
               fontWeight: 700,
               fontSize: '1.05rem',
-              color: '#1A2C59',
+              color: 'primary.dark',
               lineHeight: 1.3,
             }}
           >
@@ -121,7 +115,7 @@ function MovieCard({ movie }: MovieCardProps) {
             sx={{
               fontWeight: 500,
               fontSize: '0.875rem',
-              color: '#7C7C7C',
+              color: 'text.secondary',
               mt: 0.25,
             }}
           >
@@ -131,6 +125,8 @@ function MovieCard({ movie }: MovieCardProps) {
       </CardActionArea>
     </Card>
   );
-}
+});
+
+MovieCard.displayName = 'MovieCard';
 
 export default MovieCard;

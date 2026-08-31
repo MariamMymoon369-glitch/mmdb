@@ -48,6 +48,15 @@ lerna-debug.log*
 .temp
 .tmp
 
+
+backend/dist/app.module.js
+backend/dist/app.module.js.map
+backend/dist/app.service.js
+backend/dist/app.service.js.map
+backend/dist/main.js
+backend/dist/main.js.map
+backend/dist/tsconfig.build.tsbuildinfo
+
 # Runtime data
 pids
 *.pid

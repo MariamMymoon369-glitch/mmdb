@@ -1,5 +1,6 @@
-import { Controller, Get, Query } from '@nestjs/common';
+import { Controller, Get, Query, ValidationPipe } from '@nestjs/common';
 import { MoviesService } from './movies.service';
+import { GetMoviesDto } from './dto/get-movies.dto';
 
 @Controller('movies')
 export class MoviesController {
@@ -7,14 +8,8 @@ export class MoviesController {
 
   @Get()
   getMovies(
-    @Query('page') page?: string,
-    @Query('limit') limit?: string,
-    @Query('sort') sort?: string,
+    @Query(new ValidationPipe({ transform: true })) query: GetMoviesDto,
   ) {
-    return this.moviesService.findAll({
-      page: Number(page) || 1,
-      limit: Number(limit) || 8,
-      sort: sort === 'oldest' ? 'oldest' : 'newest',
-    });
+    return this.moviesService.findAll(query);
   }
 }

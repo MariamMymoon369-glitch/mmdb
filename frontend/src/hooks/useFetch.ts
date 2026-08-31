@@ -10,8 +10,7 @@ function useFetch<T>(url: string) {
     let cancelled = false;
 
     const loadData = async () => {
-      await Promise.resolve();
-
+      
       if (cancelled) return;
 
       setLoading(true);

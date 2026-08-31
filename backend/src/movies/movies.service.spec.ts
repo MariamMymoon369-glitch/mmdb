@@ -1,80 +1,78 @@
-import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Test, TestingModule } from '@nestjs/testing';
+import { getRepositoryToken } from '@nestjs/typeorm';
+import { MoviesService } from './movies.service';
 import { Movie } from './movie.entity';
 
-type MovieSort = 'oldest' | 'newest';
+describe('MoviesService', () => {
+  let service: MoviesService;
 
-interface FindMoviesOptions {
-  page?: number;
-  limit?: number;
-  sort?: MovieSort;
-}
+  // 1. إنشاء (Mock) للـ Repository عشان مش عايزين نضرب الداتابيز الحقيقية في التیست
+  const mockMovieRepository = {
+    findAndCount: jest.fn(),
+  };
 
-interface RawMovieRow {
-  movie_id: number;
-  rating: string | number | null;
-  reviewCount?: string | number;
-}
+  beforeEach(async () => {
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        MoviesService,
+        {
+          provide: getRepositoryToken(Movie),
+          useValue: mockMovieRepository,
+        },
+      ],
+    }).compile();
 
-@Injectable()
-export class MoviesService {
-  constructor(
-    @InjectRepository(Movie)
-    private readonly movieRepository: Repository<Movie>,
-  ) {}
+    service = module.get<MoviesService>(MoviesService);
+  });
 
-  async findAll(options: FindMoviesOptions | null = {}) {
-    const { page = 1, limit = 10, sort = 'newest' } = options ?? {};
+  afterEach(() => {
+    jest.clearAllMocks(); // تنظيف الموكس بعد كل اختبار عشان مايأثروش على بعض
+  });
 
-    const safePage = Number.isFinite(page) ? Math.max(1, page) : 1;
-    const safeLimit = Number.isFinite(limit) ? Math.max(1, limit) : 10;
+  // الاختبار الأول: التأكد إن السيرفيس شغالة وموجودة
+  it('should be defined', () => {
+    expect(service).toBeDefined();
+  });
 
-    const query = this.movieRepository
-      .createQueryBuilder('movie')
-      .leftJoin('reviews', 'review', 'review.movie_id = movie.id')
-      .select([
-        'movie.id',
-        'movie.uuid',
-        'movie.title',
-        'movie.releaseYear',
-        'movie.posterUrl',
-      ])
-      .addSelect('COALESCE(AVG(review.rating), 0)', 'rating')
-      .addSelect('COUNT(review.id)', 'reviewCount')
-      .groupBy('movie.id')
-      .orderBy('movie.releaseYear', sort === 'oldest' ? 'ASC' : 'DESC')
-      .offset((safePage - 1) * safeLimit)
-      .limit(safeLimit);
+  // الاختبار التاني: التأكد إنها بترجع القيم الافتراضية صح لو مفيش parameters
+  it('should return paginated movies with default parameters', async () => {
+    // بيانات وهمية
+    const mockMovies = [
+      { id: 1, title: 'Barbie', releaseYear: 2023, rating: 7.5 },
+      { id: 2, title: 'Oppenheimer', releaseYear: 2023, rating: 8.4 },
+    ];
 
-    const { entities, raw } = await query.getRawAndEntities();
-    const typedRawRows = raw as RawMovieRow[];
+    mockMovieRepository.findAndCount.mockResolvedValue([mockMovies, 2]);
 
-    const total = await this.movieRepository.count();
+    const result = await service.findAll({});
 
-    const data = entities.map((movie) => {
-      const rawRow = typedRawRows.find((r) => r.movie_id === movie.id);
-      const rawRating = rawRow?.rating ?? 0;
-
-      const numericRating =
-        typeof rawRating === 'number'
-          ? rawRating
-          : parseFloat(String(rawRating));
-
-      return {
-        ...movie,
-        rating: Number.isNaN(numericRating)
-          ? 0
-          : parseFloat(numericRating.toFixed(1)),
-      };
+    expect(result).toEqual({
+      data: mockMovies,
+      page: 1,
+      limit: 8,
+      total: 2,
+      totalPages: 1,
     });
 
-    return {
-      data,
-      page: safePage,
-      limit: safeLimit,
-      total,
-      totalPages: Math.ceil(total / safeLimit),
-    };
-  }
-}
+    // التأكد إن TypeORM خد القيم الافتراضية (newest, page 1, limit 8)
+    expect(mockMovieRepository.findAndCount).toHaveBeenCalledWith({
+      order: { releaseYear: 'DESC', id: 'ASC' },
+      skip: 0,
+      take: 8,
+    });
+  });
+
+  // الاختبار التالت: التأكد إنها بتحسب الصفحات والترتيب صح
+  it('should handle custom sorting and pagination correctly', async () => {
+    mockMovieRepository.findAndCount.mockResolvedValue([[], 50]);
+
+    // طلب الصفحة التانية، 5 أفلام في الصفحة، وترتيب من الأقدم للأحدث
+    await service.findAll({ page: 2, limit: 5, sort: 'oldest' });
+
+    expect(mockMovieRepository.findAndCount).toHaveBeenCalledWith({
+      order: { releaseYear: 'ASC', id: 'ASC' },
+      skip: 5, // (2 - 1) * 5 = 5
+      take: 5,
+    });
+  });
+});

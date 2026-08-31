@@ -1,4 +1,5 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { Review } from '../reviews/review.entity';
 
 @Entity('users')
 export class User {
@@ -20,4 +21,8 @@ export class User {
     default: () => 'now()',
   })
   createdAt!: Date;
+  //reviews: any;
+
+  @OneToMany(() => Review, (review) => review.user)
+  reviews!: Review[];
 }

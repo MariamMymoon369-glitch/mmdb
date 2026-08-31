@@ -1,6 +1,16 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+  ManyToOne,
+  JoinColumn,
+  Check,
+} from 'typeorm';
+import { Movie } from '../movies/movie.entity';
+import { User } from '../users/user.entity';
 
 @Entity('reviews')
+@Check(`"rating" >= 1 AND "rating" <= 10`)
 export class Review {
   @PrimaryGeneratedColumn()
   id!: number;
@@ -21,8 +31,8 @@ export class Review {
   @Column({ type: 'integer' })
   rating!: number;
 
-  @Column({ type: 'text' })
-  body!: string;
+  @Column({ type: 'varchar', length: 1000, nullable: true })
+  body?: string | null;
 
   @Column({
     type: 'timestamptz',
@@ -30,4 +40,12 @@ export class Review {
     default: () => 'now()',
   })
   createdAt!: Date;
+
+  @ManyToOne(() => Movie, (movie) => movie.reviews, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'movie_id' })
+  movie!: Movie;
+
+  @ManyToOne(() => User, (user) => user.reviews, { onDelete: 'CASCADE' })
+  @JoinColumn({ name: 'user_id' })
+  user!: User;
 }

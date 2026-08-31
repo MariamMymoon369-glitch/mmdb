@@ -4,14 +4,15 @@ export interface Movie {
   title: string;
   releaseYear: number;
   posterUrl: string | null;
-  rating: number;
-  reviewCount: number;
+  rating: number;      
+  reviewCount: number; 
 }
 
-export interface MoviesResponse {
+export interface PaginatedMovies {
   data: Movie[];
   page: number;
   limit: number;
   total: number;
   totalPages: number;
 }
+ 
