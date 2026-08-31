@@ -1,0 +1,108 @@
+import React from 'react';
+import { Box, Typography } from '@mui/material';
+import { useNavigate, useLocation } from 'react-router-dom';
+
+
+export const Footer: React.FC = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const handleLogoClick = () => {
+    if (location.pathname === '/') {
+      window.location.reload();
+    } else {
+      navigate('/');
+    }
+  };
+  
+  return (
+    <Box  
+      component="footer"
+      sx={{
+        background: 'linear-gradient(272.5deg, #003055 0%, #034A81 100.67%)',
+        display: 'flex', 
+        justifyContent: 'center', 
+        alignItems: 'center',
+        maxWidth: '1440px', 
+        width: '100%',
+        height: '214px', 
+        boxSizing: 'border-box',
+        margin: '0 auto',
+      }}
+    >
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          maxWidth: '354px', 
+          height: '124px',
+          gap: '24px',
+          px: 2,
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography
+            onClick={handleLogoClick}
+            sx={{
+              cursor: 'default',
+              color: '#418cfb',
+              fontFamily: 'Rubik, sans-serif',
+              fontWeight: 700,
+              maxWidth: '84px', 
+              height: '32px',
+              fontSize: '26.76px',
+            }}
+          >
+            MMDB
+          </Typography>
+        </Box>
+
+        <Box
+          sx={{
+            display: 'flex',
+            gap: '12px',
+            flexWrap: 'wrap',
+            maxWidth: '354px', 
+            height: '24px',
+          }}
+        >
+          {['About', 'Terms Of Use', 'Privacy Policy', 'Help'].map((text) => (
+            <Typography
+              key={text}
+              component="span"
+              onClick={() => navigate(`/${text.toLowerCase().replace(/\s+/g, '-')}`)}
+              sx={{
+                color: '#ffffff',
+                fontSize: '16px',
+                cursor: 'default',
+                fontFamily: 'Public Sans, sans-serif',
+                '&:hover': { color: '#418cfb' },
+              }}
+            >
+              {text}
+            </Typography>
+          ))}
+        </Box>
+
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Typography
+            sx={{
+              color: '#D1D5DB',
+              fontSize: '14px',
+              fontFamily: 'Public Sans, sans-serif',
+              maxWidth: '226px', 
+              height: '20px',
+            }}
+          >
+            © {new Date().getFullYear()} MMDB. All rights reserved.
+          </Typography>
+        </Box>
+      </Box>
+    </Box>
+  );
+};
+
+export default Footer;

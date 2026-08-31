@@ -3,6 +3,7 @@ import { CssBaseline, ThemeProvider } from '@mui/material';
 import { createTheme } from '@mui/material/styles';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Header from './components/header/Header';
+import Footer from './components/footer/Footer';
 
 const theme = createTheme({
   palette: {
@@ -28,10 +29,9 @@ function App() {
       <BrowserRouter>
       <Header />
         <Routes>
-          <Route path="/" element={<div style={{ padding: '40px', textAlign: 'center' }}>Home Page </div>} />
-          <Route path="/login" element={<div style={{ padding: '40px', textAlign: 'center' }}>Login Page </div>} />
-          <Route path="/signup" element={<div style={{ padding: '40px', textAlign: 'center' }}>Sign Up Page </div>} />
+         <Route path="/" element={<div style={{ padding: '425px', textAlign: 'center' }}>Home Page </div>} />
         </Routes>
+      <Footer />
       </BrowserRouter>
     </ThemeProvider>
   );
