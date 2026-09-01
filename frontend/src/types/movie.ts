@@ -14,4 +14,3 @@ export interface PaginatedMovies {
   total: number;
   totalPages: number;
 }
- 
