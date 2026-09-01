@@ -2,7 +2,7 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { MoviesController } from './movies.controller';
 import { MoviesService } from './movies.service';
-import { GetMoviesDto } from './dto/get-movies.dto';
+import { GetMoviesDto, MovieSortOption } from './dto/get-movies.dto';
 
 describe('MoviesController', () => {
   let controller: MoviesController;
@@ -36,7 +36,11 @@ describe('MoviesController', () => {
   });
 
   it('passes the default query parameters to the service', async () => {
-    const query: GetMoviesDto = { page: 1, limit: 8, sort: 'newest' };
+    const query: GetMoviesDto = {
+      page: 1,
+      limit: 8,
+      sort: MovieSortOption.NEWEST,
+    };
 
     await controller.getMovies(query);
 
@@ -44,7 +48,11 @@ describe('MoviesController', () => {
   });
 
   it('passes the customized query parameters to the service', async () => {
-    const query: GetMoviesDto = { page: 2, limit: 12, sort: 'oldest' };
+    const query: GetMoviesDto = {
+      page: 2,
+      limit: 12,
+      sort: MovieSortOption.OLDEST,
+    };
 
     await controller.getMovies(query);
 

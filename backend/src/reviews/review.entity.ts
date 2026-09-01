@@ -13,7 +13,7 @@ import { User } from '../users/user.entity';
 @Check(`"rating" >= 1 AND "rating" <= 10`)
 export class Review {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id: number;
 
   @Column({
     type: 'uuid',
@@ -21,31 +21,31 @@ export class Review {
     nullable: false,
     default: () => 'gen_random_uuid()',
   })
-  uuid?: string;
+  uuid: string;
 
   @Column({ type: 'integer', nullable: false })
-  rating?: number;
+  rating: number;
 
   @Column({ type: 'varchar', length: 1000, nullable: true })
-  body?: string | null;
+  body: string | null;
   @Column({
     type: 'timestamptz',
     name: 'created_at',
     default: () => 'now()',
   })
-  createdAt?: Date;
+  createdAt: Date;
 
   @ManyToOne(() => Movie, (movie) => movie.reviews, {
     onDelete: 'CASCADE',
     nullable: false,
   })
   @JoinColumn({ name: 'movie_id' })
-  movie?: Movie;
+  movie: Movie;
 
   @ManyToOne(() => User, (user) => user.reviews, {
     onDelete: 'CASCADE',
     nullable: false,
   })
   @JoinColumn({ name: 'user_uuid' })
-  user?: User;
+  user: User;
 }

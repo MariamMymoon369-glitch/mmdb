@@ -5,23 +5,35 @@ import {
   PrimaryGeneratedColumn,
   BeforeInsert,
   BeforeUpdate,
+  Check,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Review } from '../reviews/review.entity';
 
 @Entity('users')
+@Check(`"display_name" >= 3 AND "rating" <= 50`)
 export class User {
   @PrimaryGeneratedColumn()
-  id?: number;
+  id: number;
 
-  @Column({ type: 'text', unique: true, nullable: false })
-  email?: string;
+  @Column({ type: 'varchar', unique: true, nullable: false, length: 255 })
+  email: string;
 
-  @Column({ type: 'text', name: 'display_name', nullable: false })
-  displayName?: string;
+  @Column({
+    type: 'varchar',
+    name: 'display_name',
+    nullable: false,
+    length: 50,
+  })
+  displayName: string;
 
-  @Column({ type: 'text', name: 'password_hash', nullable: false })
-  passwordHash?: string;
+  @Column({
+    type: 'varchar',
+    name: 'password_hash',
+    nullable: false,
+    length: 255,
+  })
+  passwordHash: string;
 
   @BeforeInsert()
   @BeforeUpdate()
@@ -37,8 +49,8 @@ export class User {
     name: 'created_at',
     default: () => 'now()',
   })
-  createdAt?: Date;
+  createdAt: Date;
 
   @OneToMany(() => Review, (review) => review.user)
-  reviews?: Review[];
+  reviews: Review[];
 }

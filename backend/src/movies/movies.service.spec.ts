@@ -2,6 +2,7 @@ import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
 import { MoviesService } from './movies.service';
 import { Movie } from './movie.entity';
+import { MovieSortOption } from './dto/get-movies.dto';
 
 describe('MoviesService', () => {
   let service: MoviesService;
@@ -40,7 +41,11 @@ describe('MoviesService', () => {
 
     mockMovieRepository.findAndCount.mockResolvedValue([mockMovies, 2]);
 
-    const result = await service.findAll({});
+    const result = await service.findAll({
+      page: 0,
+      limit: 0,
+      sort: MovieSortOption.NEWEST,
+    });
 
     expect(result).toEqual({
       data: mockMovies,
@@ -60,7 +65,7 @@ describe('MoviesService', () => {
   it('should handle custom sorting and pagination correctly', async () => {
     mockMovieRepository.findAndCount.mockResolvedValue([[], 50]);
 
-    await service.findAll({ page: 2, limit: 5, sort: 'oldest' });
+    await service.findAll({ page: 2, limit: 5, sort: MovieSortOption.OLDEST });
 
     expect(mockMovieRepository.findAndCount).toHaveBeenCalledWith({
       order: { releaseYear: 'ASC', id: 'ASC' },

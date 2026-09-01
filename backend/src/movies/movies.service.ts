@@ -4,6 +4,7 @@ import { Repository } from 'typeorm';
 import { Movie } from './movie.entity';
 import { GetMoviesDto, MovieSortOption } from './dto/get-movies.dto';
 import { PaginatedMoviesResponseDto } from './dto/movie-response.dto';
+import { CreateMovieDto } from './dto/CreateMovie.dto';
 
 @Injectable()
 export class MoviesService {
@@ -40,5 +41,9 @@ export class MoviesService {
       total,
       totalPages: Math.ceil(total / limit),
     };
+  }
+  async create(createMovieDto: CreateMovieDto): Promise<Movie> {
+    const newMovie = this.movieRepository.create(createMovieDto);
+    return await this.movieRepository.save(newMovie);
   }
 }
