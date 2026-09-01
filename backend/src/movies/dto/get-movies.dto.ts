@@ -1,5 +1,10 @@
-import { IsOptional, IsInt, Min, IsIn } from 'class-validator';
+import { IsOptional, IsInt, Min, IsEnum } from 'class-validator';
 import { Type } from 'class-transformer';
+
+export enum MovieSortOption {
+  NEWEST = 'newest',
+  OLDEST = 'oldest',
+}
 
 export class GetMoviesDto {
   @IsOptional()
@@ -15,6 +20,6 @@ export class GetMoviesDto {
   limit?: number = 8;
 
   @IsOptional()
-  @IsIn(['newest', 'oldest'] as const)
-  sort?: 'newest' | 'oldest' = 'newest';
+  @IsEnum(MovieSortOption)
+  sort?: MovieSortOption = MovieSortOption.NEWEST;
 }

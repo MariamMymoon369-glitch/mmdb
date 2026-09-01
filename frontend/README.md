@@ -9,7 +9,6 @@ npm install
 npm run dev
 ```
 
-The frontend runs on `http://localhost:5173`. Requests to `/movies` are proxied to the backend at `http://localhost:3000`.
 
 ## Available scripts
 

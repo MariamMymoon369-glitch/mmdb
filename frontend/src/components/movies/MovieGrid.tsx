@@ -10,7 +10,7 @@ function MovieGrid({ movies }: MovieGridProps) {
     <Grid container spacing={3}>
       {movies.map((movie) => (
         <Grid
-          key={movie.id}
+          key={movie.uuid}
           size={{ xs: 12, sm: 6, md: 4, lg: 3 }}
         >
           <MovieCard movie={movie} />

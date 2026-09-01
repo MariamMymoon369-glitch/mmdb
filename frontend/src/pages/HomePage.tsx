@@ -4,6 +4,7 @@ import MovieGrid from '../components/movies/MovieGrid';
 import MovieSort from '../components/movies/MovieSort';
 import { type PaginatedMovies } from '../types/movie';
 import useFetch from '../hooks/useFetch';
+//import { API_BASE_URL } from '../../';
 
 function HomePage() {
   const [page, setPage] = useState(1);
@@ -14,9 +15,9 @@ function HomePage() {
     limit: '8',
     sort: sort,
   });
-
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
   const { data, loading, error } = useFetch<PaginatedMovies>(
-    `http://localhost:3000/movies?${queryParams.toString()}`
+    `${API_BASE_URL}/movies?${queryParams.toString()}`
   );
 
   const movies = data?.data ?? [];

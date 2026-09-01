@@ -2,9 +2,11 @@ import { useState } from 'react';
 import { Button, Menu, MenuItem } from '@mui/material';
 import FilterListIcon from '@mui/icons-material/FilterList';
 
+export type MovieSortOption = 'newest' | 'oldest';
+
 interface MovieSortProps {
-  sort: 'newest' | 'oldest';
-  onChange: (value: 'newest' | 'oldest') => void;
+  sort: MovieSortOption;
+  onChange: (value: MovieSortOption) => void;
 }
 
 function MovieSort({ sort, onChange }: MovieSortProps) {
@@ -18,7 +20,7 @@ function MovieSort({ sort, onChange }: MovieSortProps) {
 
   const handleClose = (value?: 'newest' | 'oldest') => {
     setAnchorEl(null);
-    if (value) {
+    if (value !== undefined) {
       onChange(value);
     }
   };

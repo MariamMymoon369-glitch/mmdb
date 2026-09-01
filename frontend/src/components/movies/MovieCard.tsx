@@ -33,7 +33,7 @@ export const MovieCard: React.FC<MovieCardProps> = React.memo(({ movie }) => {
       }}
     >
       <CardActionArea
-        onClick={() => navigate(`/movies/${movie.id}`)}
+        onClick={() => navigate(`/movies/${movie.uuid}`)}
         disableRipple 
         sx={{
             borderRadius: '12px',

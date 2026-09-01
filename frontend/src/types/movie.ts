@@ -1,5 +1,4 @@
 export interface Movie {
-  id: number;
   uuid: string;
   title: string;
   releaseYear: number;

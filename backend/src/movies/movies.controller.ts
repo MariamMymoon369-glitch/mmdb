@@ -1,4 +1,4 @@
-import { Controller, Get, Query, ValidationPipe } from '@nestjs/common';
+import { Controller, Get, Query } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { GetMoviesDto } from './dto/get-movies.dto';
 
@@ -7,9 +7,7 @@ export class MoviesController {
   constructor(private readonly moviesService: MoviesService) {}
 
   @Get()
-  getMovies(
-    @Query(new ValidationPipe({ transform: true })) query: GetMoviesDto,
-  ) {
+  getMovies(@Query() query: GetMoviesDto) {
     return this.moviesService.findAll(query);
   }
 }
