@@ -24,6 +24,15 @@ dist-ssr
 *.sln
 *.sw?
 
+
+backend/dist/app.module.js
+backend/dist/app.module.js.map
+backend/dist/app.service.js
+backend/dist/app.service.js.map
+backend/dist/main.js
+backend/dist/main.js.map
+backend/dist/tsconfig.build.tsbuildinfo
+
 # dotenv environment variable files
 .env
 .env.development.local
