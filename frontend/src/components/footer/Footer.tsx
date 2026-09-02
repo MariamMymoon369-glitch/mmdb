@@ -20,13 +20,13 @@ export const Footer: React.FC = () => {
       component="footer"
       sx={{
         background: (theme) => `linear-gradient(272.5deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100.67%)`,        display: 'flex', 
-        justifyContent: 'center', 
-        alignItems: 'center',
-        maxWidth: '1440px', 
+        justifyContent: 'space-between', 
+        alignItems: 'flex-start',
         width: '100%',
         height: '214px', 
         boxSizing: 'border-box',
         margin: '0 auto',
+        padding: '44px 112px 58px 70px',
       }}
     >
       <Box
@@ -34,12 +34,10 @@ export const Footer: React.FC = () => {
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
           width: '100%',
-          maxWidth: '354px', 
           height: '124px',
           gap: '24px',
-          px: 2,
+          px: 3,
         }}
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>

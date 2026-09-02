@@ -26,7 +26,6 @@ export const Header: React.FC = () => {
         display: 'flex', 
         justifyContent: 'center', 
         width: '100%',
-        maxWidth: '1440px', 
         height: '72px', 
         alignItems: 'center', 
         px: 4,
@@ -39,8 +38,7 @@ export const Header: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        padding: '75px',
-        maxWidth: '1170px',
+        padding: '110px',
         height: '48px',
       }}
     >
