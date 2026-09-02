@@ -1,4 +1,4 @@
-import { CssBaseline, ThemeProvider } from '@mui/material';
+import { CssBaseline, ThemeProvider, Box } from '@mui/material';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import MoviePlaceholderPage from './pages/MoviePlaceholderPage';
@@ -12,7 +12,17 @@ function App() {
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            minHeight: '103vh',
+            backgroundColor: 'background.default',
+            width: '100%',
+          }}
+        >
           <Header />
+          <Box component="main" sx={{ flex: 1, width: '100%' }}>
             <Routes>
               <Route path="/homepage" element={<HomePage />} />
               <Route path="/" element={<Navigate to="/homepage" replace />} />
@@ -20,7 +30,9 @@ function App() {
               <Route path="/movies/:id" element={<MoviePlaceholderPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Routes>
+          </Box>
           <Footer />
+        </Box>
       </BrowserRouter>
     </ThemeProvider>
   );

@@ -2,7 +2,7 @@ import React from 'react';
 import { Box, Button, Typography, InputBase, } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate, useLocation, Link} from 'react-router-dom';
 
 export const Header: React.FC = () => {
     const navigate = useNavigate();
@@ -44,6 +44,7 @@ export const Header: React.FC = () => {
       }}
     >
      <Box sx={{ display: 'flex', alignItems: 'center', gap: '48px' }}>
+    <Link to="/homepage" style={{ textDecoration: 'none' }}>
       <Typography
         onClick={handleLogoClick}
         sx={{
@@ -57,7 +58,7 @@ export const Header: React.FC = () => {
       >
         MMDB
       </Typography>
-
+    </Link>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '34px',}}>
         <Typography
             onClick={handleLogoClick}
@@ -84,7 +85,7 @@ export const Header: React.FC = () => {
             letterSpacing: '-0.025em',
             display: 'flex',
             alignItems: 'center',
-          cursor: 'pointer',
+            cursor: 'default',
 
           }}
         >
@@ -131,7 +132,7 @@ export const Header: React.FC = () => {
                 fontWeight: 500,
                 fontSize: '16px',
                 textTransform: 'none',
-                cursor: 'pointer',
+                cursor: 'default',
                 height: '19px',
               }}
             >
@@ -150,7 +151,7 @@ export const Header: React.FC = () => {
                 textTransform: 'none',
                 borderRadius: '8px',           
                 padding: '10px 26px',
-                cursor: 'pointer',
+                 cursor: 'pointer',
                 maxWidth: '92px', 
                 height: '39px',
               }}
