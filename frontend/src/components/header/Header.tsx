@@ -22,7 +22,7 @@ export const Header: React.FC = () => {
  <Box  
   component="header"
     sx={{
-        backgroundColor: '#FFFFFF',
+        backgroundColor: 'background.paper',
         display: 'flex', 
         justifyContent: 'center', 
         width: '100%',
@@ -30,6 +30,7 @@ export const Header: React.FC = () => {
         height: '72px', 
         alignItems: 'center', 
         px: 4,
+        margin: '0 auto',
 }}>
    
    <Box
@@ -48,7 +49,7 @@ export const Header: React.FC = () => {
         onClick={handleLogoClick}
         sx={{
           cursor: 'default',
-          color: '#418cfb',
+          color: 'secondary.main',
           fontFamily: 'Rubik, sans-serif',
           fontStyle: 'Bold',
           fontWeight: 700,
@@ -62,7 +63,7 @@ export const Header: React.FC = () => {
         <Typography
             onClick={handleLogoClick}
                 sx={{
-                    color: '#003055',
+                    color: 'primary.main',
                     fontFamily: 'Inter, sans-serif',
                     fontWeight: 500,
                     fontSize: '16px',
@@ -77,7 +78,7 @@ export const Header: React.FC = () => {
 
         <Typography
           sx={{
-            color: '#697586',
+            color: 'text.secondary',
             fontFamily: 'Inter, sans-serif',
             fontWeight: 500,
             fontSize: '16px',
@@ -103,17 +104,17 @@ export const Header: React.FC = () => {
             alignItems: 'center',
             width: '227px',
             height: '48px',
-            border: '1px solid #e5e5e5',
+            border: (theme) => `1px solid ${theme.palette.grey[200]}`,
             borderRadius: '60px',
             padding: '12px 16px',
             gap:'12px'
           }}
         >
-          <SearchIcon sx={{ color: '#697586', }} />
+          <SearchIcon sx={{ color: 'text.secondary', }} />
           <InputBase
             placeholder="Search"
             sx={{
-              color: '#697586',
+              color: 'text.secondary',
               fontFamily: 'Inter, sans-serif',
               fontSize: '16px',
               width: '100%',
@@ -126,7 +127,7 @@ export const Header: React.FC = () => {
             <Button
              onClick={() => navigate('/signup')}
               sx={{
-                color: '#418cfb',
+                color: 'secondary.main',
                 fontFamily: 'Roboto, sans-serif',
                 fontWeight: 500,
                 fontSize: '16px',
@@ -142,8 +143,8 @@ export const Header: React.FC = () => {
              variant="contained"
              onClick={() => navigate('/login')}
               sx={{
-                backgroundColor: '#418cfb',
-                color: '#ffffff',
+                backgroundColor: 'secondary.main',
+                color: 'common.white',
                 fontFamily: 'Roboto, sans-serif',
                 fontWeight: 500,
                 fontSize: '16px',
@@ -164,4 +165,5 @@ export const Header: React.FC = () => {
  </Box>
   );
 };
+
 export default Header;

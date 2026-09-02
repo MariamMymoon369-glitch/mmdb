@@ -19,8 +19,7 @@ export const Footer: React.FC = () => {
     <Box  
       component="footer"
       sx={{
-        background: 'linear-gradient(272.5deg, #003055 0%, #034A81 100.67%)',
-        display: 'flex', 
+        background: (theme) => `linear-gradient(272.5deg, ${theme.palette.primary.main} 0%, ${theme.palette.primary.light} 100.67%)`,        display: 'flex', 
         justifyContent: 'center', 
         alignItems: 'center',
         maxWidth: '1440px', 
@@ -48,7 +47,7 @@ export const Footer: React.FC = () => {
             onClick={handleLogoClick}
             sx={{
               cursor: 'default',
-              color: '#418cfb',
+              color: 'secondary.main',
               fontFamily: 'Rubik, sans-serif',
               fontWeight: 700,
               maxWidth: '84px', 
@@ -75,11 +74,11 @@ export const Footer: React.FC = () => {
               component="span"
               onClick={() => navigate(`/${text.toLowerCase().replace(/\s+/g, '-')}`)}
               sx={{
-                color: '#ffffff',
+                color: 'common.white',
                 fontSize: '16px',
                 cursor: 'default',
                 fontFamily: 'Public Sans, sans-serif',
-                '&:hover': { color: '#418cfb' },
+                '&:hover': { color: 'secondary.main' },
               }}
             >
               {text}
@@ -90,7 +89,7 @@ export const Footer: React.FC = () => {
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography
             sx={{
-              color: '#D1D5DB',
+              color: 'grey.400',
               fontSize: '14px',
               fontFamily: 'Public Sans, sans-serif',
               maxWidth: '226px', 
