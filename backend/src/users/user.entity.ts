@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { Review } from '../reviews/review.entity';
 
 @Entity('users')
-@Check(`"display_name" >= 3 AND "rating" <= 50`)
+@Check(`"display_name" >= 3`)
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -38,7 +38,6 @@ export class User {
 
   @Column({
     type: 'varchar',
-
     name: 'password_hash',
     nullable: false,
     length: 255,

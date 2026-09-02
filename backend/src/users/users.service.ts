@@ -14,7 +14,6 @@ export class UsersService {
     return await this.userRepository.findOne({ where: { email } });
   }
 
-  // بنستقبل البيانات جاهزة (شاملة الباسورد المتهيش) وبنحفظها بس
   async create(userData: Partial<User>): Promise<User> {
     const user = this.userRepository.create(userData);
     return await this.userRepository.save(user);
