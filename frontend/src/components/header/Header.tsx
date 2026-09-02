@@ -32,6 +32,7 @@ export const Header: React.FC = () => {
         margin: '0 auto',
 }}>
    
+
    <Box
       sx={{
         display: 'flex',
@@ -46,7 +47,7 @@ export const Header: React.FC = () => {
       <Typography
         onClick={handleLogoClick}
         sx={{
-          cursor: 'default',
+          cursor: 'pointer',
           color: 'secondary.main',
           fontFamily: 'Rubik, sans-serif',
           fontStyle: 'Bold',
@@ -66,7 +67,7 @@ export const Header: React.FC = () => {
                     fontWeight: 500,
                     fontSize: '16px',
                     letterSpacing: '-0.025em',
-                    cursor: 'default',
+                    cursor: 'pointer',
                     
                     
                 }}
@@ -83,7 +84,7 @@ export const Header: React.FC = () => {
             letterSpacing: '-0.025em',
             display: 'flex',
             alignItems: 'center',
-            cursor: 'default',
+          cursor: 'pointer',
 
           }}
         >
@@ -130,7 +131,7 @@ export const Header: React.FC = () => {
                 fontWeight: 500,
                 fontSize: '16px',
                 textTransform: 'none',
-                cursor: 'default',
+                cursor: 'pointer',
                 height: '19px',
               }}
             >
@@ -149,7 +150,7 @@ export const Header: React.FC = () => {
                 textTransform: 'none',
                 borderRadius: '8px',           
                 padding: '10px 26px',
-                cursor: 'default',
+                cursor: 'pointer',
                 maxWidth: '92px', 
                 height: '39px',
               }}

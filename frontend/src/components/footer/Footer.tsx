@@ -1,20 +1,18 @@
 import React from 'react';
 import { Box, Typography } from '@mui/material';
-import { useNavigate, useLocation } from 'react-router-dom';
-
+import {  useNavigate, useLocation } from 'react-router-dom';
 
 export const Footer: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-  const handleLogoClick = () => {
-    if (location.pathname === '/') {
-      window.location.reload();
-    } else {
-      navigate('/');
-    }
-  };
-  
+    const handleLogoClick = () => {
+      if (location.pathname === '/homepage' || location.pathname === '/') {
+        navigate('/homepage', { state: { refresh: Date.now() } });
+      } else {
+        navigate('/homepage');
+      }
+    };
   return (
     <Box  
       component="footer"
@@ -42,9 +40,11 @@ export const Footer: React.FC = () => {
       >
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Typography
-            onClick={handleLogoClick}
+           onClick={handleLogoClick}
+           component="span"
             sx={{
-              cursor: 'default',
+              cursor: 'pointer',
+              textDecoration: 'none',
               color: 'secondary.main',
               fontFamily: 'Rubik, sans-serif',
               fontWeight: 700,
@@ -56,7 +56,7 @@ export const Footer: React.FC = () => {
             MMDB
           </Typography>
         </Box>
-
+        
         <Box
           sx={{
             display: 'flex',
@@ -74,10 +74,11 @@ export const Footer: React.FC = () => {
               sx={{
                 color: 'common.white',
                 fontSize: '16px',
-                cursor: 'default',
+                cursor: 'pointer',
                 fontFamily: 'Public Sans, sans-serif',
                 '&:hover': { color: 'secondary.main' },
               }}
+
             >
               {text}
             </Typography>
