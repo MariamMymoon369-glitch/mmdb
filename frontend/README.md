@@ -1,4 +1,32 @@
-# React + TypeScript + Vite
+# MMDB Frontend
+
+React, TypeScript, Vite, Material UI, and React Router frontend for MMDB.
+
+## Development
+
+```bash
+npm install
+npm run dev
+```
+
+
+## Available scripts
+
+| Command | Description |
+| --- | --- |
+| `npm run dev` | Start the Vite development server |
+| `npm run build` | Type-check and create a production build |
+| `npm run lint` | Run ESLint |
+## Backend connection
+
+Start the backend separately on port `3000`:
+
+```bash
+cd ../backend
+npm run start:dev
+```
+
+Then start the frontend from this directory with `npm run dev`.
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
