@@ -16,7 +16,7 @@ function App() {
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            minHeight: '103vh',
+            minHeight: '159vh',
             backgroundColor: 'background.default',
             width: '100%',
           }}

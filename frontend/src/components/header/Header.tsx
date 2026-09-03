@@ -2,20 +2,20 @@ import React from 'react';
 import { Box, Button, Typography, InputBase, } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { useNavigate, useLocation, Link} from 'react-router-dom';
+import { useNavigate, useLocation} from 'react-router-dom';
 
 export const Header: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const isLoggedIn = false;
 
-  const handleLogoClick = () => {
-    if (location.pathname === '/') {
-      window.location.reload();
-    } else {
-      navigate('/');
-    }
-  };
+    const handleLogoClick = () => {
+      if (location.pathname === '/') {
+        window.location.reload();
+      } else {
+        navigate('/');
+      }
+    };
   
 
  return (
@@ -44,8 +44,7 @@ export const Header: React.FC = () => {
       }}
     >
      <Box sx={{ display: 'flex', alignItems: 'center', gap: '48px' }}>
-    <Link to="/homepage" style={{ textDecoration: 'none' }}>
-      <Typography
+    <Typography
         onClick={handleLogoClick}
         sx={{
           cursor: 'pointer',
@@ -58,7 +57,6 @@ export const Header: React.FC = () => {
       >
         MMDB
       </Typography>
-    </Link>
       <Box sx={{ display: 'flex', alignItems: 'center', gap: '34px',}}>
         <Typography
             onClick={handleLogoClick}
@@ -85,7 +83,7 @@ export const Header: React.FC = () => {
             letterSpacing: '-0.025em',
             display: 'flex',
             alignItems: 'center',
-            cursor: 'default',
+            cursor: 'pointer',
 
           }}
         >
@@ -95,8 +93,8 @@ export const Header: React.FC = () => {
 </Box>
     
       <Box sx={{ display: 'flex',
-                alignItems: 'center',
-                gap: '12px',
+                 alignItems: 'center',
+                 gap: '12px',
             }}>
         <Box
           sx={{
@@ -132,7 +130,7 @@ export const Header: React.FC = () => {
                 fontWeight: 500,
                 fontSize: '16px',
                 textTransform: 'none',
-                cursor: 'default',
+                cursor: 'pointer',
                 height: '19px',
               }}
             >
@@ -151,7 +149,7 @@ export const Header: React.FC = () => {
                 textTransform: 'none',
                 borderRadius: '8px',           
                 padding: '10px 26px',
-                 cursor: 'pointer',
+                cursor: 'pointer',
                 maxWidth: '92px', 
                 height: '39px',
               }}

@@ -6,13 +6,13 @@ export const Footer: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
 
-    const handleLogoClick = () => {
-      if (location.pathname === '/homepage' || location.pathname === '/') {
-        navigate('/homepage', { state: { refresh: Date.now() } });
-      } else {
-        navigate('/homepage');
-      }
-    };
+  const handleLogoClick = () => {
+    if (location.pathname === '/') {
+      window.location.reload();
+    } else {
+      navigate('/');
+    }
+  };
   return (
     <Box  
       component="footer"
