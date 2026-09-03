@@ -24,6 +24,10 @@ export const Footer: React.FC = () => {
         height: '214px', 
         boxSizing: 'border-box',
         margin: '0 auto',
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        zIndex: (theme) => theme.zIndex.appBar,
         padding: '44px 112px 58px 70px',
       }}
     >

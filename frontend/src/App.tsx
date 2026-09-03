@@ -17,7 +17,7 @@ function App() {
           sx={{
             display: 'flex',
             flexDirection: 'column',
-            minHeight: '159vh',
+            minHeight: '100vh',
             backgroundColor: 'background.default',
             width: '100%',
           }}
@@ -30,7 +30,8 @@ function App() {
               <Route path="/home" element={<Navigate to="/homepage" replace />} />
               <Route path="/movies/:id" element={<MoviePlaceholderPage />} />
               <Route path="*" element={<NotFoundPage />} />
-              <Route path="/auth/login" element={<LoginPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/auth/login" element={<Navigate to="/login" replace />} />
 
             </Routes>
           </Box>
