@@ -9,7 +9,7 @@ let theme = createTheme({
       light: '#034A81',
     },
     secondary: {
-      main: '#418cf8',
+      main: '#418cfb',
       light: '#74b4ff',
       dark: '#0057b0',
     },

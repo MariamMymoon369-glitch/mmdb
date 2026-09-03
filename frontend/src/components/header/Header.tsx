@@ -10,10 +10,10 @@ export const Header: React.FC = () => {
     const isLoggedIn = false;
 
     const handleLogoClick = () => {
-      if (location.pathname === '/') {
+      if (location.pathname === '/homepage') {
         window.location.reload();
       } else {
-        navigate('/');
+        navigate('/homepage');
       }
     };
   

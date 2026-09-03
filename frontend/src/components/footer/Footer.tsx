@@ -7,10 +7,10 @@ export const Footer: React.FC = () => {
   const location = useLocation();
 
   const handleLogoClick = () => {
-    if (location.pathname === '/') {
+    if (location.pathname === '/homepage') {
       window.location.reload();
     } else {
-      navigate('/');
+      navigate('/homepage');
     }
   };
   return (
@@ -23,12 +23,7 @@ export const Footer: React.FC = () => {
         width: '100%',
         height: '214px', 
         boxSizing: 'border-box',
-        margin: '0 auto',
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        zIndex: (theme) => theme.zIndex.appBar,
-        padding: '44px 112px 58px 70px',
+       
       }}
     >
       <Box
@@ -39,6 +34,7 @@ export const Footer: React.FC = () => {
           width: '100%',
           height: '124px',
           gap: '24px',
+          padding: '45px 522px 45px 522px',
           px: 3,
         }}
       >

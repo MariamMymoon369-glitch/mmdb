@@ -2,22 +2,19 @@ import React, { useState } from 'react';
 import {
   Box,
   Typography,
-  TextField,
   Button,
   Checkbox,
   FormControlLabel,
   Link,
-  IconButton,
-  InputAdornment,
   Container,
+  OutlinedInput,
 } from '@mui/material';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     email: '',
@@ -36,14 +33,11 @@ const LoginPage: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    console.log('Login submitted:', formData);
 
     try {
-      const response = await fetch('${API_BASE_URL}/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           email: formData.email,
           password: formData.password,
@@ -51,158 +45,122 @@ const LoginPage: React.FC = () => {
         }),
       });
 
-      if (!response.ok) {
-        // If status is 401, show invalid credentials
-        throw new Error('Invalid email or password');
-      }
+      if (!response.ok) throw new Error('Invalid email or password');
 
       const data: { accessToken: string; user: unknown } = await response.json();
-      
-      // Destructure the token and user data from your backend response
       const { accessToken, user } = data;
 
-      // Acceptance Criteria: "Keep me signed in" logic
       if (formData.keepMeSignedIn) {
-        localStorage.setItem('accessToken', accessToken); // Survives browser restarts
+        localStorage.setItem('accessToken', accessToken);
       } else {
-        sessionStorage.setItem('accessToken', accessToken); // Cleared when tab is closed
+        sessionStorage.setItem('accessToken', accessToken);
       }
       
-      // Store user details for the Header (Profile picture, name)
       localStorage.setItem('user', JSON.stringify(user));
-
-      // Redirect to homepage
       navigate('/');
       
     } catch (err: unknown) {
-      console.error('Login error:', err);
       setError(err instanceof Error ? err.message : 'Unable to sign in');
     }
   };
 
-
   return (
-    <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 8 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          border: '2px solid',
-          borderColor: 'secondary.main',
-          borderRadius: 1,
-          p: 4,
-          backgroundColor: 'background.paper',
-        }}
-      >
-        <Typography variant="h5" color="secondary.main" sx={{ mb: 3, fontWeight: 'bold' }}>
+    <Container component="main" maxWidth="xs" sx={{ mt: 10, mb: 8 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+        
+        <Typography variant="h4" color="secondary" sx={{ mb: 2, fontWeight: 900 }}>
           MMDB
         </Typography>
 
-        <Typography
-          variant="h6"
-          color="primary"
-          align="left"
-          sx={{ mb: 2, width: '100%', fontWeight: 'bold' }}
+        <Box
+          sx={{
+            width: '100%',
+            p: 4,
+            borderRadius: 3,
+            backgroundColor: 'background.paper',
+            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
+            border: '1px solid',
+            borderColor: 'grey.200'
+          }}
         >
-          Sign in
-        </Typography>
+          <Typography variant="h5" color="primary.main" sx={{ mb: 3, fontWeight: 'bold' }}>
+            Sign in
+          </Typography>
 
           {error && (
-                    <Typography color="error" variant="body2" sx={{ mb: 2 }}>
-                      {error}
-                    </Typography>
-                  )}
-
-        <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
-          <TextField
-            fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            placeholder="email@example.com"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-            margin="normal"
-            size="small"
-            slotProps={{ inputLabel: { shrink: true } }}
-          />
-
-          <Box
-            sx={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'flex-end',
-              mt: 1,
-            }}
-          >
-            <Link href="#" variant="caption" color="secondary.main" underline="hover" sx={{ ml: 'auto', mb: 0.5 }}>
-              Forgot password?
-            </Link>
-          </Box>
-          <TextField
-            fullWidth
-            label="Password"
-            name="password"
-            type={showPassword ? 'text' : 'password'}
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={handleInputChange}
-            required
-            size="small"
-            slotProps={{
-              inputLabel: { shrink: true },
-              input: {
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small">
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              },
-            }}
-          />
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="secondary"
-            sx={{ mt: 3, mb: 1, py: 1.2, fontWeight: 'bold', textTransform: 'none', boxShadow: 'none' }}
-          >
-            Sign in
-          </Button>
-
-          <FormControlLabel
-            control={
-              <Checkbox
-                name="keepMeSignedIn"
-                checked={formData.keepMeSignedIn}
-                onChange={handleInputChange}
-                color="secondary"
-                size="small"
-              />
-            }
-            label={<Typography variant="body2" color="text.secondary">Keep me signed in</Typography>}
-            sx={{ mt: 1, mb: 2 }}
-          />
-
-          <Box sx={{ display: 'flex', gap: 1, justifyContent: 'center' }}>
-            <Typography variant="body2" color="text.secondary">
-              New to MMDB?
+            <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+              {error}
             </Typography>
-            <Link
-              component={RouterLink}
-              to="/signup"
-              variant="body2"
-              color="secondary.main"
-              underline="hover"
-              sx={{ fontWeight: 'medium' }}
+          )}
+
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+            
+            <Typography variant="body2" color="primary.main" sx={{ mb: 1, fontWeight: 600 }}>
+              Email
+            </Typography>
+            <OutlinedInput
+              fullWidth
+              name="email"
+              type="email"
+              placeholder="email@example.com"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              size="small"
+              sx={{ mb: 3, borderRadius: 2 }}
+            />
+
+            <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 1 }}>
+              <Typography variant="body2" color="primary.main" sx={{ fontWeight: 600 }}>
+                Password
+              </Typography>
+              <Link href="#" variant="body2" color="secondary.main" underline="hover">
+                Forgot password?
+              </Link>
+            </Box>
+            <OutlinedInput
+              fullWidth
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+              size="small"
+              sx={{ mb: 3, borderRadius: 2 }}
+            />
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="secondary"
+              disableElevation
+              sx={{ py: 1.2, mb: 2, borderRadius: 2, fontWeight: 'bold', textTransform: 'none', fontSize: '1rem' }}
             >
-              Sign up
-            </Link>
+              Sign in
+            </Button>
+
+            <FormControlLabel
+              control={
+                <Checkbox
+                  name="keepMeSignedIn"
+                  checked={formData.keepMeSignedIn}
+                  onChange={handleInputChange}
+                  color="primary"
+                  size="small"
+                />
+              }
+              label={<Typography color="text.secondary">Keep me signed in</Typography>}
+            />
+
+            <Typography variant="body2" color="text.secondary">
+              New to MMDB?{' '}
+              <Link component={RouterLink} to="/signup" color="secondary.main" underline="hover">
+                Sign up
+              </Link>
+            </Typography>
+
           </Box>
         </Box>
       </Box>
@@ -211,3 +169,4 @@ const LoginPage: React.FC = () => {
 };
 
 export default LoginPage;
+

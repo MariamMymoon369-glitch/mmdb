@@ -57,21 +57,21 @@ function HomePage() {
           }}
         />
       </Stack>
+      <Box sx={{ minHeight: '930px' }}>
+            {loading && (
+              <Typography sx={{ py: 8, textAlign: 'center', color: 'grey.700' }}>
+                Loading...
+              </Typography>
+            )}
 
-      {loading && (
-        <Typography sx={{ py: 8, textAlign: 'center', color: 'grey.700' }}>
-          Loading...
-        </Typography>
-      )}
+            {!loading && !error && movies.length === 0 && (
+              <Alert severity="info" sx={{ borderRadius: '12px' }}>
+                No movies found.
+              </Alert>
+            )}
 
-      {!loading && !error && movies.length === 0 && (
-        <Alert severity="info" sx={{ borderRadius: '12px' }}>
-          No movies found.
-        </Alert>
-      )}
-
-      {!loading && !error && movies.length > 0 && <MovieGrid movies={movies} />}
-
+            {!loading && !error && movies.length > 0 && <MovieGrid movies={movies} />}
+      </Box>
       {data && data.totalPages > 1 && (
         <Box sx={{ display: 'flex', justifyContent: 'center', mt: 6 }}>
          
