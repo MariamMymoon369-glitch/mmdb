@@ -9,13 +9,13 @@ import {
 export class LoginDto {
   @IsEmail({}, { message: 'Invalid email format' })
   @IsNotEmpty({ message: 'Email is required' })
-  email!: string;
+  email: string;
 
   @IsString()
   @IsNotEmpty()
-  password!: string;
+  password: string;
 
   @IsOptional()
   @IsBoolean()
-  keepMeSignedIn?: boolean;
+  keepMeSignedIn: boolean;
 }

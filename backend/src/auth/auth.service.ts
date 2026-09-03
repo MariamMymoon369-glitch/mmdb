@@ -10,7 +10,7 @@ import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/user.entity';
 
-export type SafeUser = Omit<User, 'passwordHash'>;
+export type SafeUser = Omit<User, 'passwordHash' | 'hashPassword'>;
 
 @Injectable()
 export class AuthService {
@@ -20,7 +20,7 @@ export class AuthService {
   ) {}
 
   async signup(signupDto: SignupDto): Promise<SafeUser> {
-    const { email, password, firstName, lastName } = signupDto;
+    const { email, password, firstName, lastName, displayName } = signupDto;
 
     const existingUser = await this.usersService.findByEmail(email);
     if (existingUser) {
@@ -35,6 +35,7 @@ export class AuthService {
       passwordHash,
       firstName,
       lastName,
+      displayName,
     });
 
     return this.getSafeUser(newUser);
@@ -74,8 +75,10 @@ export class AuthService {
       firstName: user.firstName,
       lastName: user.lastName,
       email: user.email,
+      displayName: user.displayName,
       profilePictureUrl: user.profilePictureUrl,
       createdAt: user.createdAt,
+      reviews: user.reviews,
     };
   }
 }
