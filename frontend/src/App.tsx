@@ -6,6 +6,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import theme from './theme/theme';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
+import LoginPage from './pages/LoginPage';
 
 function App() {
   return (
@@ -29,10 +30,13 @@ function App() {
               <Route path="/home" element={<Navigate to="/homepage" replace />} />
               <Route path="/movies/:id" element={<MoviePlaceholderPage />} />
               <Route path="*" element={<NotFoundPage />} />
+              <Route path="/auth/login" element={<LoginPage />} />
+
             </Routes>
           </Box>
           <Footer />
         </Box>
+        
       </BrowserRouter>
     </ThemeProvider>
   );

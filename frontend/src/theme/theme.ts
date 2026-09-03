@@ -9,7 +9,7 @@ let theme = createTheme({
       light: '#034A81',
     },
     secondary: {
-      main: '#418cfb',
+      main: '#418cf8',
       light: '#74b4ff',
       dark: '#0057b0',
     },
@@ -29,6 +29,7 @@ let theme = createTheme({
       500: '#7C7C7C', 
       600: '#697586', 
       700: '#64748B', 
+      800: '#99A1B0',
     },
   },
   typography: {
