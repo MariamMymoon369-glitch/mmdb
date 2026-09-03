@@ -4,7 +4,6 @@ import MovieGrid from '../components/movies/MovieGrid';
 import MovieSort from '../components/movies/MovieSort';
 import { type PaginatedMovies } from '../types/movie';
 import useFetch from '../hooks/useFetch';
-//import { API_BASE_URL } from '../../';
 
 function HomePage() {
   const [page, setPage] = useState(1);
@@ -26,10 +25,10 @@ function HomePage() {
     <Box
       component="main"
       sx={{
-        maxWidth: 1200,
+        padding: '50px 150px',
+        width: '100%',
         mx: 'auto',
-        px: { xs: 2, sm: 3, md: 4 },
-        py: { xs: 3, md: 5 },
+       
       }}
     >
       <Stack
