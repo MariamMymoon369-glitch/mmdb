@@ -1,13 +1,31 @@
 import React from 'react';
-import { Box, Button, Typography, InputBase, } from '@mui/material';
+import { Avatar, Box, Button, Menu, MenuItem, Typography, InputBase, } from '@mui/material';
 import SearchIcon from '@mui/icons-material/Search';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
 import { useNavigate, useLocation} from 'react-router-dom';
+import { useAuth } from '../../hooks/useAuth';
+import profileSvg from '../../assets/profile.svg';
 
 export const Header: React.FC = () => {
     const navigate = useNavigate();
     const location = useLocation();
-    const isLoggedIn = false;
+    const { user, isLoggedIn, logout } = useAuth();
+    const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
+    const menuOpen = Boolean(anchorEl);
+
+    const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
+      setAnchorEl(event.currentTarget);
+    };
+
+    const handleMenuClose = () => {
+      setAnchorEl(null);
+    };
+
+    const handleLogout = () => {
+      logout();
+      handleMenuClose();
+      navigate('/homepage');
+    };
 
     const handleLogoClick = () => {
       if (location.pathname === '/homepage') {
@@ -120,7 +138,42 @@ export const Header: React.FC = () => {
           />
         </Box>
 
-        {!isLoggedIn && (
+        {isLoggedIn && user ? (
+          <>
+            <Box
+              onClick={handleMenuOpen}
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                cursor: 'pointer',
+              }}
+            >
+              <Avatar src={profileSvg} alt={user.displayName} />
+              <Typography
+                sx={{
+                  color: 'primary.main',
+                  fontFamily: 'Inter, sans-serif',
+                  fontWeight: 500,
+                  fontSize: '16px',
+                  letterSpacing: '-0.025em',
+                }}
+              >
+                {user.firstName}
+              </Typography>
+              <ArrowDropDownIcon fontSize="medium" sx={{ color: 'text.secondary' }} />
+            </Box>
+            <Menu
+              anchorEl={anchorEl}
+              open={menuOpen}
+              onClose={handleMenuClose}
+              anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+              transformOrigin={{ vertical: 'top', horizontal: 'right' }}
+            >
+              <MenuItem onClick={handleLogout}>Logout</MenuItem>
+            </Menu>
+          </>
+        ) : (
           <>
             <Button
              onClick={() => navigate('/signup')}

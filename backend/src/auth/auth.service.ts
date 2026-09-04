@@ -9,7 +9,6 @@ import { SignupDto } from './dto/signup.dto';
 import { LoginDto } from './dto/login.dto';
 import * as bcrypt from 'bcrypt';
 import { User } from '../users/user.entity';
-
 export type SafeUser = Omit<User, 'passwordHash' | 'hashPassword'>;
 
 @Injectable()
@@ -21,18 +20,17 @@ export class AuthService {
 
   async signup(signupDto: SignupDto): Promise<SafeUser> {
     const { email, password, firstName, lastName, displayName } = signupDto;
+    const normalizedEmail = email.toLowerCase().trim();
 
-    const existingUser = await this.usersService.findByEmail(email);
+    const existingUser = await this.usersService.findByEmail(normalizedEmail);
     if (existingUser) {
       throw new ConflictException('Email already exists');
     }
 
-    const salt = await bcrypt.genSalt(10);
-    const passwordHash = await bcrypt.hash(password, salt);
-
+    // Stored via UsersService.create -> User.@BeforeInsert hashes it once.
     const newUser = await this.usersService.create({
-      email,
-      passwordHash,
+      email: normalizedEmail,
+      passwordHash: password,
       firstName,
       lastName,
       displayName,
@@ -46,7 +44,9 @@ export class AuthService {
   ): Promise<{ user: SafeUser; accessToken: string }> {
     const { email, password, keepMeSignedIn } = loginDto;
 
-    const user = await this.usersService.findByEmail(email);
+    const user = await this.usersService.findByEmail(
+      email.toLowerCase().trim(),
+    );
 
     if (!user) {
       throw new UnauthorizedException('Invalid email or password');

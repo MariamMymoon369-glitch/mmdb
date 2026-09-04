@@ -4,7 +4,6 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   BeforeInsert,
-  BeforeUpdate,
   Check,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
@@ -53,12 +52,9 @@ export class User {
   profilePictureUrl: string;
 
   @BeforeInsert()
-  @BeforeUpdate()
   async hashPassword() {
-    if (this.passwordHash && !this.passwordHash.startsWith('$2')) {
-      const salt = await bcrypt.genSalt(10);
-      this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
-    }
+    const salt = await bcrypt.genSalt(10);
+    this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
   }
 
   @Column({

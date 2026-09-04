@@ -10,6 +10,7 @@ import {
   OutlinedInput,
 } from '@mui/material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { AUTH_CHANGE_EVENT } from '../hooks/useAuth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
@@ -39,7 +40,7 @@ const LoginPage: React.FC = () => {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          email: formData.email,
+          email: formData.email.toLowerCase().trim(),
           password: formData.password,
           keepMeSignedIn: formData.keepMeSignedIn,
         }),
@@ -57,6 +58,7 @@ const LoginPage: React.FC = () => {
       }
       
       localStorage.setItem('user', JSON.stringify(user));
+      window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
       navigate('/');
       
     } catch (err: unknown) {

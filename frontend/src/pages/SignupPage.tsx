@@ -2,19 +2,19 @@ import React, { useState } from 'react';
 import {
   Box,
   Typography,
-  TextField,
   Button,
   Link,
-  IconButton,
-  InputAdornment,
   Container,
+  OutlinedInput,
 } from '@mui/material';
-import Visibility from '@mui/icons-material/Visibility';
-import VisibilityOff from '@mui/icons-material/VisibilityOff';
-import { Link as RouterLink } from 'react-router-dom';
+import { useNavigate, Link as RouterLink } from 'react-router-dom';
+import { AUTH_CHANGE_EVENT } from '../hooks/useAuth';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
 const SignupPage: React.FC = () => {
-  const [showPassword, setShowPassword] = useState(false);
+  const navigate = useNavigate();
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -30,113 +30,166 @@ const SignupPage: React.FC = () => {
     }));
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log('Signup submitted:', formData);
+    setError(null);
+
+    try {
+      const response = await fetch(`${API_BASE_URL}/auth/signup`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          firstName: formData.firstName,
+          lastName: formData.lastName,
+          email: formData.email.toLowerCase().trim(),
+          displayName: `${formData.firstName} ${formData.lastName}`.trim(),
+          password: formData.password,
+        }),
+      });
+
+      if (!response.ok) {
+        const data: unknown = await response.json().catch(() => null);
+        const message =
+          typeof data === 'object' && data !== null && 'message' in data
+            ? (data as { message: string | string[] }).message
+            : 'Unable to sign up';
+        throw new Error(
+          Array.isArray(message) ? message.join(', ') : message,
+        );
+      }
+
+      const loginResponse = await fetch(`${API_BASE_URL}/auth/login`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          email: formData.email.toLowerCase().trim(),
+          password: formData.password,
+        }),
+      });
+
+      if (!loginResponse.ok) {
+        navigate('/login');
+        return;
+      }
+
+      const loginData: { accessToken: string; user: unknown } =
+        await loginResponse.json();
+      sessionStorage.setItem('accessToken', loginData.accessToken);
+      localStorage.setItem('user', JSON.stringify(loginData.user));
+      window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
+      navigate('/');
+    } catch (err: unknown) {
+      setError(err instanceof Error ? err.message : 'Unable to sign up');
+    }
   };
 
   return (
-    <Container component="main" maxWidth="xs" sx={{ mt: 8, mb: 8 }}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          border: '2px solid',
-          borderColor: 'secondary.main',
-          borderRadius: 1,
-          p: 4,
-          backgroundColor: 'background.paper',
-        }}
-      >
-        <Typography variant="h5" color="secondary.main" fontWeight="bold" sx={{ mb: 3 }}>
+    <Container component="main" maxWidth="xs" sx={{ mt: 10, mb: 8 }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
+
+        <Typography variant="h4" color="secondary" sx={{ mb: 2, fontWeight: 900 }}>
           MMDB
         </Typography>
 
-        <Typography variant="h6" fontWeight="bold" color="primary" align="left" width="100%" sx={{ mb: 2 }}>
-          Create your account
-        </Typography>
+        <Box
+          sx={{
+            width: '100%',
+            p: 4,
+            borderRadius: 3,
+            backgroundColor: 'background.paper',
+            boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
+            border: '1px solid',
+            borderColor: 'grey.200'
+          }}
+        >
+          <Typography variant="h5" color="primary.main" sx={{ mb: 3, fontWeight: 'bold' }}>
+            Create your account
+          </Typography>
 
-        <Box component="form" onSubmit={handleSubmit} width="100%">
-          <Box display="flex" gap={2} mb={2}>
-            <TextField
+          {error && (
+            <Typography color="error" variant="body2" sx={{ mb: 2 }}>
+              {error}
+            </Typography>
+          )}
+
+          <Box component="form" onSubmit={handleSubmit} sx={{ width: '100%' }}>
+
+            <Typography variant="body2" color="primary.main" sx={{ mb: 1, fontWeight: 600 }}>
+              First name
+            </Typography>
+            <OutlinedInput
               fullWidth
-              label="First name"
               name="firstName"
               placeholder="Jane"
               value={formData.firstName}
               onChange={handleInputChange}
               required
               size="small"
-              InputLabelProps={{ shrink: true }}
+              sx={{ mb: 3, borderRadius: 2 }}
             />
-            <TextField
+
+            <Typography variant="body2" color="primary.main" sx={{ mb: 1, fontWeight: 600 }}>
+              Last name
+            </Typography>
+            <OutlinedInput
               fullWidth
-              label="Last name"
               name="lastName"
               placeholder="Doe"
               value={formData.lastName}
               onChange={handleInputChange}
               required
               size="small"
-              InputLabelProps={{ shrink: true }}
+              sx={{ mb: 3, borderRadius: 2 }}
             />
-          </Box>
 
-          <TextField
-            fullWidth
-            label="Email"
-            name="email"
-            type="email"
-            placeholder="email@example.com"
-            value={formData.email}
-            onChange={handleInputChange}
-            required
-            margin="normal"
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            sx={{ mt: 0, mb: 2 }}
-          />
-
-          <TextField
-            fullWidth
-            label="Password"
-            name="password"
-            type={showPassword ? 'text' : 'password'}
-            placeholder="••••••••"
-            value={formData.password}
-            onChange={handleInputChange}
-            required
-            size="small"
-            InputLabelProps={{ shrink: true }}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton onClick={() => setShowPassword(!showPassword)} edge="end" size="small">
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
-
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            color="secondary"
-            sx={{ mt: 3, mb: 3, py: 1.2, fontWeight: 'bold', textTransform: 'none', boxShadow: 'none' }}
-          >
-            Sign up
-          </Button>
-
-          <Box display="flex" gap={1} justifyContent="center">
-            <Typography variant="body2" color="text.secondary">
-              Already have an account?
+            <Typography variant="body2" color="primary.main" sx={{ mb: 1, fontWeight: 600 }}>
+              Email
             </Typography>
-            <Link component={RouterLink} to="/login" variant="body2" color="secondary.main" underline="hover" fontWeight="medium">
-              Sign in
-            </Link>
+            <OutlinedInput
+              fullWidth
+              name="email"
+              type="email"
+              placeholder="email@example.com"
+              value={formData.email}
+              onChange={handleInputChange}
+              required
+              size="small"
+              sx={{ mb: 3, borderRadius: 2 }}
+            />
+
+            <Typography variant="body2" color="primary.main" sx={{ mb: 1, fontWeight: 600 }}>
+              Password
+            </Typography>
+            <OutlinedInput
+              fullWidth
+              name="password"
+              type="password"
+              placeholder="••••••••"
+              value={formData.password}
+              onChange={handleInputChange}
+              required
+              size="small"
+              sx={{ mb: 3, borderRadius: 2 }}
+            />
+
+            <Button
+              type="submit"
+              fullWidth
+              variant="contained"
+              color="secondary"
+              disableElevation
+              sx={{ py: 1.2, mb: 2, borderRadius: 2, fontWeight: 'bold', textTransform: 'none', fontSize: '1rem' }}
+            >
+              Sign up
+            </Button>
+
+            <Typography variant="body2" color="text.secondary">
+              Already have an account?{' '}
+              <Link component={RouterLink} to="/login" color="secondary.main" underline="hover">
+                Sign in
+              </Link>
+            </Typography>
+
           </Box>
         </Box>
       </Box>

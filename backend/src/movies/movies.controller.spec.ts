@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/unbound-method */
 import { Test, TestingModule } from '@nestjs/testing';
 import { MoviesController } from './movies.controller';
 import { MoviesService } from './movies.service';
@@ -6,7 +5,6 @@ import { GetMoviesDto, MovieSortOption } from './dto/get-movies.dto';
 
 describe('MoviesController', () => {
   let controller: MoviesController;
-  let service: MoviesService;
 
   const mockMoviesService = {
     findAll: jest.fn().mockResolvedValue({ data: [], totalPages: 1 }),
@@ -24,7 +22,6 @@ describe('MoviesController', () => {
     }).compile();
 
     controller = module.get<MoviesController>(MoviesController);
-    service = module.get<MoviesService>(MoviesService);
   });
 
   afterEach(() => {
@@ -44,7 +41,7 @@ describe('MoviesController', () => {
 
     await controller.getMovies(query);
 
-    expect(service.findAll).toHaveBeenCalledWith(query);
+    expect(mockMoviesService.findAll).toHaveBeenCalledWith(query);
   });
 
   it('passes the customized query parameters to the service', async () => {
@@ -56,6 +53,6 @@ describe('MoviesController', () => {
 
     await controller.getMovies(query);
 
-    expect(service.findAll).toHaveBeenCalledWith(query);
+    expect(mockMoviesService.findAll).toHaveBeenCalledWith(query);
   });
 });

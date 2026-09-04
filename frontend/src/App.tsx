@@ -7,6 +7,7 @@ import theme from './theme/theme';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
 import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 
 function App() {
   return (
@@ -24,6 +25,8 @@ function App() {
               <Route path="*" element={<NotFoundPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/auth/login" element={<Navigate to="/login" replace />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/auth/signup" element={<Navigate to="/signup" replace />} />
             </Routes>
             </Box>
           <Footer />     
