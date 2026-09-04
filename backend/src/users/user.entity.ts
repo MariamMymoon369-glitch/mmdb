@@ -11,7 +11,7 @@ import * as bcrypt from 'bcrypt';
 import { Review } from '../reviews/review.entity';
 
 @Entity('users')
-@Check(`"display_name" >= 3`)
+@Check(`char_length("display_name") >= 3`)
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
