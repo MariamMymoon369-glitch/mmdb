@@ -27,6 +27,8 @@ import { MoviesModule } from './movies/movies.module';
 
         autoLoadEntities: true,
         synchronize: false,
+        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+        migrationsRun: true,
       }),
     }),
 

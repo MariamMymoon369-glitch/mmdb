@@ -64,7 +64,16 @@ describe('MoviesService', () => {
     });
 
     expect(result).toEqual({
-      data: mockMovies,
+      data: mockMovies.map(
+        ({ uuid, title, releaseYear, posterUrl, rating, reviewCount }) => ({
+          uuid,
+          title,
+          releaseYear,
+          posterUrl,
+          rating,
+          reviewCount,
+        }),
+      ),
       page: 1,
       limit: 8,
       total: 2,

@@ -4,14 +4,13 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   BeforeInsert,
-  BeforeUpdate,
   Check,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Review } from '../reviews/review.entity';
 
 @Entity('users')
-@Check(`"display_name" >= 3`)
+@Check(`char_length("display_name") >= 3`)
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
@@ -53,12 +52,9 @@ export class User {
   profilePictureUrl: string;
 
   @BeforeInsert()
-  @BeforeUpdate()
   async hashPassword() {
-    if (this.passwordHash && !this.passwordHash.startsWith('$2')) {
-      const salt = await bcrypt.genSalt(10);
-      this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
-    }
+    const salt = await bcrypt.genSalt(10);
+    this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
   }
 
   @Column({
