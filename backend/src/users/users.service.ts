@@ -14,6 +14,7 @@ export class UsersService {
     return await this.userRepository
       .createQueryBuilder('user')
       .where('LOWER(user.email) = LOWER(:email)', { email: email.trim() })
+      .addSelect('user.passwordHash')
       .getOne();
   }
 

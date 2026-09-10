@@ -40,6 +40,7 @@ export class User {
     name: 'password_hash',
     nullable: false,
     length: 255,
+    select: false,
   })
   passwordHash: string;
 
