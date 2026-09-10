@@ -3,6 +3,8 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
+import { UsersModule } from './users/users.module';
+import { AuthModule } from './auth/auth.module';
 import { MoviesModule } from './movies/movies.module';
 
 @Module({
@@ -25,8 +27,14 @@ import { MoviesModule } from './movies/movies.module';
 
         autoLoadEntities: true,
         synchronize: false,
+        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+        migrationsRun: true,
       }),
     }),
+
+    UsersModule,
+
+    AuthModule,
   ],
 
   controllers: [AppController],

@@ -4,17 +4,25 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
   BeforeInsert,
-  BeforeUpdate,
   Check,
 } from 'typeorm';
 import * as bcrypt from 'bcrypt';
 import { Review } from '../reviews/review.entity';
 
 @Entity('users')
-@Check(`"display_name" >= 3 AND "rating" <= 50`)
+@Check(`char_length("display_name") >= 3`)
 export class User {
   @PrimaryGeneratedColumn()
   id: number;
+
+  @Column({ type: 'uuid', unique: true, default: () => 'gen_random_uuid()' })
+  uuid: string;
+
+  @Column({ type: 'varchar', length: 50, name: 'first_name' })
+  firstName: string;
+
+  @Column({ type: 'varchar', length: 50, name: 'last_name' })
+  lastName: string;
 
   @Column({ type: 'varchar', unique: true, nullable: false, length: 255 })
   email: string;
@@ -32,16 +40,22 @@ export class User {
     name: 'password_hash',
     nullable: false,
     length: 255,
+    select: false,
   })
   passwordHash: string;
 
+  @Column({
+    type: 'varchar',
+    name: 'profile_picture_url',
+    nullable: true,
+    default: 'https://ui-avatars.com/api/?name=User&background=random',
+  })
+  profilePictureUrl: string;
+
   @BeforeInsert()
-  @BeforeUpdate()
   async hashPassword() {
-    if (this.passwordHash && !this.passwordHash.startsWith('$2')) {
-      const salt = await bcrypt.genSalt(10);
-      this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
-    }
+    const salt = await bcrypt.genSalt(10);
+    this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
   }
 
   @Column({
