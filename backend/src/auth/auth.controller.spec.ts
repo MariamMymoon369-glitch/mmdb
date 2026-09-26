@@ -24,6 +24,8 @@ describe('AuthController', () => {
           useValue: {
             signup: jest.fn(),
             login: jest.fn(),
+            logout: jest.fn(),
+            isRevoked: jest.fn(),
           },
         },
       ],

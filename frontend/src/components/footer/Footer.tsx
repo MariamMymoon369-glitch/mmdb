@@ -7,10 +7,10 @@ export const Footer: React.FC = () => {
   const location = useLocation();
 
   const handleLogoClick = () => {
-    if (location.pathname === '/') {
+    if (location.pathname === '/homepage') {
       window.location.reload();
     } else {
-      navigate('/');
+      navigate('/homepage');
     }
   };
   return (
@@ -23,8 +23,7 @@ export const Footer: React.FC = () => {
         width: '100%',
         height: '214px', 
         boxSizing: 'border-box',
-        margin: '0 auto',
-        padding: '44px 112px 58px 70px',
+       
       }}
     >
       <Box
@@ -35,6 +34,7 @@ export const Footer: React.FC = () => {
           width: '100%',
           height: '124px',
           gap: '24px',
+          padding: '45px 522px 45px 522px',
           px: 3,
         }}
       >
@@ -50,7 +50,8 @@ export const Footer: React.FC = () => {
               fontWeight: 700,
               maxWidth: '84px', 
               height: '32px',
-              fontSize: '26.76px',
+              fontSize: '34px',
+              lineHeight: 1,
             }}
           >
             MMDB

@@ -3,6 +3,7 @@ import { DataSource } from 'typeorm';
 import { Movie } from '../movies/movie.entity';
 import { User } from '../users/user.entity';
 import { Review } from '../reviews/review.entity';
+import { RevokedToken } from '../auth/revoked-token.entity';
 
 export default new DataSource({
   type: 'postgres',
@@ -12,7 +13,7 @@ export default new DataSource({
   password: process.env.DB_PASSWORD,
   database: process.env.DB_DATABASE,
 
-  entities: [Movie, User, Review],
+  entities: [Movie, User, Review, RevokedToken],
 
   migrations: [__dirname + '/migrations/*{.ts,.js}'],
 

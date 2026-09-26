@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { getStoredToken, notifySessionExpired } from './useAuth';
 
 function useFetch<T>(url: string) {
   const [data, setData] = useState<T | null>(null);
@@ -17,9 +18,22 @@ function useFetch<T>(url: string) {
       setError(null);
 
       try {
+        const token = getStoredToken();
+        const headers: Record<string, string> = {};
+        if (token) {
+          headers.Authorization = `Bearer ${token}`;
+        }
         const response = await fetch(url, {
           signal: controller.signal,
+          headers,
         });
+
+        if (response.status === 401) {
+          if (token) {
+            notifySessionExpired();
+          }
+          return;
+        }
 
         if (!response.ok) {
           throw new Error('Failed to fetch');

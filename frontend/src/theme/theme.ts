@@ -29,6 +29,7 @@ let theme = createTheme({
       500: '#7C7C7C', 
       600: '#697586', 
       700: '#64748B', 
+      800: '#99A1B0',
     },
   },
   typography: {

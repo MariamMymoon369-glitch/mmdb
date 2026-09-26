@@ -1,4 +1,4 @@
-import { CssBaseline, ThemeProvider, Box } from '@mui/material';
+import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import MoviePlaceholderPage from './pages/MoviePlaceholderPage';
@@ -6,33 +6,32 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import theme from './theme/theme';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
+import SessionExpiredDialog from './components/auth/SessionExpiredDialog';
+import LoginPage from './pages/LoginPage';
+import SignupPage from './pages/SignupPage';
 
 function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
       <BrowserRouter>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            minHeight: '159vh',
-            backgroundColor: 'background.default',
-            width: '100%',
-          }}
-        >
+      
           <Header />
-          <Box component="main" sx={{ flex: 1, width: '100%' }}>
+          <Box component="main" sx={{ flex: 1, width: '100%', minHeight: 'calc(100vh - 72px - 214px)' }}>
             <Routes>
               <Route path="/homepage" element={<HomePage />} />
               <Route path="/" element={<Navigate to="/homepage" replace />} />
               <Route path="/home" element={<Navigate to="/homepage" replace />} />
               <Route path="/movies/:id" element={<MoviePlaceholderPage />} />
               <Route path="*" element={<NotFoundPage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route path="/auth/login" element={<Navigate to="/login" replace />} />
+              <Route path="/signup" element={<SignupPage />} />
+              <Route path="/auth/signup" element={<Navigate to="/signup" replace />} />
             </Routes>
           </Box>
-          <Footer />
-        </Box>
+          <SessionExpiredDialog />
+          <Footer />     
       </BrowserRouter>
     </ThemeProvider>
   );
