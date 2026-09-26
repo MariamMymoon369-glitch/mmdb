@@ -8,6 +8,9 @@ import {
   Link,
   Container,
   OutlinedInput,
+  Dialog,
+  DialogActions,
+  DialogContent,
 } from '@mui/material';
 import { useNavigate, Link as RouterLink } from 'react-router-dom';
 import { AUTH_CHANGE_EVENT } from '../hooks/useAuth';
@@ -17,6 +20,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 const LoginPage: React.FC = () => {
   const navigate = useNavigate();
   const [error, setError] = useState<string | null>(null);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -59,7 +63,7 @@ const LoginPage: React.FC = () => {
       
       localStorage.setItem('user', JSON.stringify(user));
       window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
-      navigate('/');
+      navigate('/homepage');
       
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unable to sign in');
@@ -67,25 +71,50 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <Container component="main" maxWidth="xs" sx={{ mt: 10, mb: 8 }}>
+    <Container
+      component="main"
+      maxWidth="xs"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        py: 6,
+        minHeight: 'calc(100vh - 72px - 214px)',
+      }}
+    >
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
         
-        <Typography variant="h4" color="secondary" sx={{ mb: 2, fontWeight: 900 }}>
+        <Typography
+          variant="h4"
+          color="secondary"
+          sx={{
+            mb: 2,
+            fontFamily: 'Rubik, sans-serif',
+            fontWeight: 700,
+            fontSize: '34px',
+            lineHeight: 1,
+          }}
+        >
           MMDB
         </Typography>
 
         <Box
           sx={{
-            width: '100%',
-            p: 4,
+            width: '400px',
+            height: '472px',
+            p: '36px',
             borderRadius: 3,
             backgroundColor: 'background.paper',
             boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
-            border: '1px solid',
-            borderColor: 'grey.200'
+            border: '1px solid #D0D5E0',
           }}
         >
-          <Typography variant="h5" color="primary.main" sx={{ mb: 3, fontWeight: 'bold' }}>
+          <Typography
+            variant="h5"
+            color="primary.main"
+            sx={{ mb: 3, fontWeight: 600, fontSize: '22px', lineHeight: 1 }}
+          >
             Sign in
           </Typography>
 
@@ -116,7 +145,14 @@ const LoginPage: React.FC = () => {
               <Typography variant="body2" color="primary.main" sx={{ fontWeight: 600 }}>
                 Password
               </Typography>
-              <Link href="#" variant="body2" color="secondary.main" underline="hover">
+              <Link
+                component="button"
+                type="button"
+                variant="body2"
+                color="secondary.main"
+                underline="hover"
+                onClick={() => setShowForgotPassword(true)}
+              >
                 Forgot password?
               </Link>
             </Box>
@@ -166,6 +202,45 @@ const LoginPage: React.FC = () => {
           </Box>
         </Box>
       </Box>
+      <Dialog
+        open={showForgotPassword}
+        onClose={() => setShowForgotPassword(false)}
+        sx={{
+          '& .MuiDialog-paper': {
+            borderRadius: '16px',
+            padding: '24px',
+            textAlign: 'center',
+            minWidth: { xs: '300px', sm: '400px' },
+            boxShadow: '0px 10px 30px rgba(0,0,0,0.1)',
+          },
+        }}
+      >
+        <DialogContent sx={{ pb: 0 }}>
+          <Typography variant="h5" sx={{ fontWeight: 800, mb: 2 }}>
+            Forgot password
+          </Typography>
+          <Typography sx={{ color: 'grey.600', fontSize: '1rem', mb: 3 }}>
+            Password reset is currently under development and will be available
+            soon.
+          </Typography>
+        </DialogContent>
+        <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
+          <Button
+            variant="contained"
+            onClick={() => setShowForgotPassword(false)}
+            sx={{
+              borderRadius: '8px',
+              px: 4,
+              py: 1.5,
+              fontWeight: 700,
+              textTransform: 'none',
+              boxShadow: 'none',
+            }}
+          >
+            Close
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 };

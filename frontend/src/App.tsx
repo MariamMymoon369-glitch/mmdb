@@ -6,6 +6,7 @@ import { NotFoundPage } from './pages/NotFoundPage';
 import theme from './theme/theme';
 import Header from './components/header/Header';
 import Footer from './components/footer/Footer';
+import SessionExpiredDialog from './components/auth/SessionExpiredDialog';
 import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 
@@ -28,7 +29,8 @@ function App() {
               <Route path="/signup" element={<SignupPage />} />
               <Route path="/auth/signup" element={<Navigate to="/signup" replace />} />
             </Routes>
-            </Box>
+          </Box>
+          <SessionExpiredDialog />
           <Footer />     
       </BrowserRouter>
     </ThemeProvider>

@@ -21,8 +21,8 @@ export const Header: React.FC = () => {
       setAnchorEl(null);
     };
 
-    const handleLogout = () => {
-      logout();
+    const handleLogout = async () => {
+      await logout();
       handleMenuClose();
       navigate('/homepage');
     };
@@ -68,9 +68,9 @@ export const Header: React.FC = () => {
           cursor: 'pointer',
           color: 'secondary.main',
           fontFamily: 'Rubik, sans-serif',
-          fontStyle: 'Bold',
           fontWeight: 700,
-          fontSize: '26.76px',
+          fontSize: '34px',
+          lineHeight: 1,
         }}
       >
         MMDB

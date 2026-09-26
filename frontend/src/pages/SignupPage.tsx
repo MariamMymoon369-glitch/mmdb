@@ -77,7 +77,7 @@ const SignupPage: React.FC = () => {
       sessionStorage.setItem('accessToken', loginData.accessToken);
       localStorage.setItem('user', JSON.stringify(loginData.user));
       window.dispatchEvent(new Event(AUTH_CHANGE_EVENT));
-      navigate('/');
+      navigate('/homepage');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Unable to sign up');
     }
@@ -87,7 +87,17 @@ const SignupPage: React.FC = () => {
     <Container component="main" maxWidth="xs" sx={{ mt: 10, mb: 8 }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
 
-        <Typography variant="h4" color="secondary" sx={{ mb: 2, fontWeight: 900 }}>
+        <Typography
+          variant="h4"
+          color="secondary"
+          sx={{
+            mb: 2,
+            fontFamily: 'Rubik, sans-serif',
+            fontWeight: 700,
+            fontSize: '34px',
+            lineHeight: 1,
+          }}
+        >
           MMDB
         </Typography>
 

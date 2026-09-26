@@ -15,6 +15,13 @@ import { LoginDto } from './dto/login.dto';
 import { JwtAuthGuard } from './jwt-auth.guard';
 import type { Request as ExpressRequest } from 'express';
 
+interface AuthenticatedRequestUser {
+  userId: number;
+  email: string;
+  uuid: string;
+  jti?: string;
+}
+
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -33,8 +40,17 @@ export class AuthController {
   }
 
   @HttpCode(HttpStatus.OK)
+  @UseGuards(JwtAuthGuard)
   @Post('logout')
-  logout(): { message: string } {
+  async logout(
+    @Request() req: ExpressRequest & { user: AuthenticatedRequestUser },
+  ): Promise<{ message: string }> {
+    const authHeader = req.headers.authorization;
+    const rawToken =
+      authHeader && authHeader.startsWith('Bearer ')
+        ? authHeader.slice('Bearer '.length)
+        : undefined;
+    await this.authService.logout(req.user.userId, req.user.jti, rawToken);
     return { message: 'Logged out successfully' };
   }
 

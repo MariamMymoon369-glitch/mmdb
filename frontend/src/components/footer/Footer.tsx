@@ -50,7 +50,8 @@ export const Footer: React.FC = () => {
               fontWeight: 700,
               maxWidth: '84px', 
               height: '32px',
-              fontSize: '26.76px',
+              fontSize: '34px',
+              lineHeight: 1,
             }}
           >
             MMDB
