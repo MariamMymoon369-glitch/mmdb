@@ -5,12 +5,14 @@ import {
   ManyToOne,
   JoinColumn,
   Check,
+  Unique,
 } from 'typeorm';
 import { Movie } from '../movies/movie.entity';
 import { User } from '../users/user.entity';
 
 @Entity('reviews')
 @Check(`"rating" >= 1 AND "rating" <= 10`)
+@Unique('UQ_reviews_movie_user', ['movie', 'user'])
 export class Review {
   @PrimaryGeneratedColumn()
   id: number;
@@ -23,8 +25,11 @@ export class Review {
   })
   uuid: string;
 
-  @Column({ type: 'integer', nullable: false })
-  rating: number;
+  @Column({ type: 'integer', nullable: true })
+  rating: number | null;
+
+  @Column({ type: 'varchar', length: 200, nullable: true })
+  title: string | null;
 
   @Column({ type: 'varchar', length: 1000, nullable: true })
   body: string | null;

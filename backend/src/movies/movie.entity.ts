@@ -1,6 +1,10 @@
 import { Column, Entity, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { Review } from '../reviews/review.entity';
 
+import { MovieCast } from './movie-cast.entity';
+import { MovieCrew } from './movie-crew.entity';
+import { MovieGenre } from './movie-genre.entity';
+
 @Entity('movies')
 export class Movie {
   @PrimaryGeneratedColumn()
@@ -43,4 +47,13 @@ export class Movie {
 
   @OneToMany(() => Review, (review) => review.movie)
   reviews: Review[];
+
+  @OneToMany(() => MovieCast, (cast) => cast.movie)
+  cast: MovieCast[];
+
+  @OneToMany(() => MovieCrew, (crew) => crew.movie)
+  crew: MovieCrew[];
+
+  @OneToMany(() => MovieGenre, (movieGenre) => movieGenre.movie)
+  genres: MovieGenre[];
 }
