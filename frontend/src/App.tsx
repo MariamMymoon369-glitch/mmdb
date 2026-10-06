@@ -1,7 +1,8 @@
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import MoviePlaceholderPage from './pages/MoviePlaceholderPage';
+import MovieDetailsPage from './pages/MovieDetailsPage';
+import PersonDetailsPage from './pages/PersonDetailsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import theme from './theme/theme';
 import Header from './components/header/Header';
@@ -22,7 +23,8 @@ function App() {
               <Route path="/homepage" element={<HomePage />} />
               <Route path="/" element={<Navigate to="/homepage" replace />} />
               <Route path="/home" element={<Navigate to="/homepage" replace />} />
-              <Route path="/movies/:id" element={<MoviePlaceholderPage />} />
+              <Route path="/movies/:uuid" element={<MovieDetailsPage />} />
+              <Route path="/people/:uuid" element={<PersonDetailsPage />} />
               <Route path="*" element={<NotFoundPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/auth/login" element={<Navigate to="/login" replace />} />

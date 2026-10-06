@@ -44,7 +44,7 @@ export const MovieCard: React.FC<MovieCardProps> = React.memo(({ movie }) => {
             justifyContent: 'flex-start',
             
             '&:hover': {
-              bgcolor: '#F8FAFC', 
+              bgcolor: 'grey.50', 
               transform: 'translateY(-2px)', 
             },
             
@@ -86,7 +86,7 @@ export const MovieCard: React.FC<MovieCardProps> = React.memo(({ movie }) => {
               alignItems: 'center',
             }}
           >
-            <StarIcon sx={{ fontSize: 18, color: '#FFB800' }} />
+            <StarIcon sx={{ fontSize: 18, color: 'star' }} />
             <Typography
               sx={{
                 fontWeight: 700,

@@ -107,7 +107,7 @@ const LoginPage: React.FC = () => {
             borderRadius: 3,
             backgroundColor: 'background.paper',
             boxShadow: '0px 4px 20px rgba(0, 0, 0, 0.05)',
-            border: '1px solid #D0D5E0',
+            border: '1px solid border',
           }}
         >
           <Typography
