@@ -3,6 +3,16 @@ import { MoviesController } from './movies.controller';
 import { MoviesService } from './movies.service';
 import { GetMoviesDto, MovieSortOption } from './dto/get-movies.dto';
 
+jest.mock('@nestjs/passport', () => ({
+  AuthGuard: jest.fn(() => class MockAuthGuard {}),
+  PassportStrategy: jest.fn(() => (target: object) => target),
+  PassportModule: { register: jest.fn() },
+}));
+
+jest.mock('@nestjs/jwt', () => ({
+  JwtService: jest.fn(),
+}));
+
 describe('MoviesController', () => {
   let controller: MoviesController;
 

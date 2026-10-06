@@ -3,6 +3,11 @@ import dataSource from '../data-source';
 import { Movie } from '../../movies/movie.entity';
 import { User } from '../../users/user.entity';
 import { Review } from '../../reviews/review.entity';
+import { Person } from '../../people/person.entity';
+import { MovieCast } from '../../movies/movie-cast.entity';
+import { MovieCrew } from '../../movies/movie-crew.entity';
+import { Genre } from '../../genres/genre.entity';
+import { MovieGenre } from '../../movies/movie-genre.entity';
 
 const TMDB_BASE = 'https://api.themoviedb.org/3';
 const POSTER_BASE = 'https://image.tmdb.org/t/p/w500';
@@ -20,7 +25,23 @@ interface TmdbListItem {
 interface TmdbDetail {
   runtime: number | null;
   poster_path: string | null;
+  genres?: { id: number; name: string }[];
   videos?: { results: { site: string; type: string; key: string }[] };
+  credits?: {
+    cast: {
+      id: number;
+      name: string;
+      character: string;
+      profile_path: string | null;
+      order: number;
+    }[];
+    crew: {
+      id: number;
+      name: string;
+      job: string;
+      profile_path: string | null;
+    }[];
+  };
 }
 
 function tmdbFetch(path: string): Promise<unknown> {
@@ -72,6 +93,21 @@ const SEED_USERS = [
   ['Ingrid', 'Larsen', 'ingrid.l'],
   ['Tunde', 'Adeyemi', 'tunde.a'],
 ] as const;
+
+const REVIEW_TITLES = [
+  'Loved every minute',
+  'Great, with a few flaws',
+  'A visual treat',
+  'Pleasantly surprised',
+  'Solid and rewatchable',
+  'Stunning from start to finish',
+  'Bold choices that pay off',
+  'An unforgettable ending',
+  'A fun night at the movies',
+  'Carried by its lead',
+  'Divisive but thought-provoking',
+  'Tight and well crafted',
+];
 
 const REVIEW_BODIES = [
   'A masterclass in pacing. The final act had me holding my breath.',
@@ -154,6 +190,119 @@ async function main() {
   }
   console.log(`Movies inserted: ${movieInserted}, skipped: ${movieSkipped}`);
 
+  // --- 2.5 Genres / cast / crew from TMDB credits ---
+  const peopleRepo = dataSource.getRepository(Person);
+  const castRepo = dataSource.getRepository(MovieCast);
+  const crewRepo = dataSource.getRepository(MovieCrew);
+  const genresRepo = dataSource.getRepository(Genre);
+  const movieGenresRepo = dataSource.getRepository(MovieGenre);
+
+  const upsertPerson = async (p: {
+    id: number;
+    name: string;
+    profile_path: string | null;
+  }): Promise<Person> => {
+    const existing = await peopleRepo.findOne({ where: { tmdbId: p.id } });
+    if (existing) return existing;
+    return peopleRepo.save(
+      peopleRepo.create({
+        tmdbId: p.id,
+        name: p.name,
+        photoUrl: p.profile_path ? `${POSTER_BASE}${p.profile_path}` : null,
+      }),
+    );
+  };
+
+  let castInserted = 0;
+  let crewInserted = 0;
+  let genreLinks = 0;
+  for (const item of listed.values()) {
+    const year = Number((item.release_date ?? '').slice(0, 4));
+    if (!item.title || !year) continue;
+    const movie = allMovies.find(
+      (m) => m.title === item.title && m.releaseYear === year,
+    );
+    if (!movie) continue;
+
+    const hasCast = await castRepo.findOne({
+      where: { movieId: movie.id },
+    });
+    const hasGenres = await movieGenresRepo.findOne({
+      where: { movieId: movie.id },
+    });
+    if (hasCast && hasGenres) continue;
+
+    let detail: TmdbDetail | null = null;
+    try {
+      detail = (await tmdbFetch(
+        `/movie/${item.id}?language=en-US&append_to_response=credits`,
+      )) as TmdbDetail;
+    } catch (err) {
+      console.log(`Credits fetch failed for ${item.title}:`, err);
+      continue;
+    }
+    await sleep(200);
+
+    for (const g of detail?.genres ?? []) {
+      let genre = await genresRepo.findOne({ where: { name: g.name } });
+      if (!genre) {
+        genre = await genresRepo.save(genresRepo.create({ name: g.name }));
+      }
+      const link = await movieGenresRepo.findOne({
+        where: { movieId: movie.id, genreId: genre.id },
+      });
+      if (!link) {
+        await movieGenresRepo.save(
+          movieGenresRepo.create({ movieId: movie.id, genreId: genre.id }),
+        );
+        genreLinks++;
+      }
+    }
+
+    for (const [index, c] of (detail?.credits?.cast ?? [])
+      .slice(0, 15)
+      .entries()) {
+      const person = await upsertPerson(c);
+      const characterName = c.character?.trim() || 'Unknown';
+      const exists = await castRepo.findOne({
+        where: { movieId: movie.id, personId: person.id, characterName },
+      });
+      if (!exists) {
+        await castRepo.save(
+          castRepo.create({
+            movieId: movie.id,
+            personId: person.id,
+            characterName,
+            billingOrder: c.order ?? index,
+          }),
+        );
+        castInserted++;
+      }
+    }
+
+    for (const cr of detail?.credits?.crew ?? []) {
+      const allowed = ['Director', 'Writer', 'Screenplay', 'Story'];
+      if (!allowed.includes(cr.job)) continue;
+      const person = await upsertPerson(cr);
+      const exists = await crewRepo.findOne({
+        where: { movieId: movie.id, personId: person.id, job: cr.job },
+      });
+      if (!exists) {
+        await crewRepo.save(
+          crewRepo.create({
+            movieId: movie.id,
+            personId: person.id,
+            job: cr.job,
+          }),
+        );
+        crewInserted++;
+      }
+    }
+  }
+  console.log(
+    `Cast rows: ${castInserted}, crew rows: ${crewInserted}, genre links: ${genreLinks}`,
+  );
+
   // --- 3. Users (password hashed by entity hook) ---
   const allUsers: User[] = await usersRepo.find();
   for (const [first, last, handle] of SEED_USERS) {
@@ -186,12 +335,15 @@ async function main() {
         10,
         Math.max(1, Math.round(6.5 + (rand() + rand() + rand() - 1.5) * 3)),
       );
+      const written = rand() >= 0.25;
       const review = reviewsRepo.create({
         rating,
-        body:
-          rand() < 0.25
-            ? null
-            : REVIEW_BODIES[Math.floor(rand() * REVIEW_BODIES.length)],
+        title: written
+          ? REVIEW_TITLES[Math.floor(rand() * REVIEW_TITLES.length)]
+          : null,
+        body: written
+          ? REVIEW_BODIES[Math.floor(rand() * REVIEW_BODIES.length)]
+          : null,
         movie,
         user,
       });
@@ -206,18 +358,24 @@ async function main() {
     const reviews = await reviewsRepo.find({
       where: { movie: { id: movie.id } },
     });
-    if (reviews.length > 0) {
-      movie.reviewCount = reviews.length;
+    const rated = reviews.filter((r) => r.rating != null);
+    const written = reviews.filter((r) => r.body != null);
+    movie.reviewCount = written.length;
+    if (rated.length > 0) {
       movie.rating = Number(
-        (reviews.reduce((s, r) => s + r.rating, 0) / reviews.length).toFixed(1),
+        (
+          rated.reduce((s, r) => s + (r.rating as number), 0) / rated.length
+        ).toFixed(1),
       );
-      await moviesRepo.save(movie);
     }
+    await moviesRepo.save(movie);
   }
   for (const [table, seq] of [
     ['movies', 'movies_id_seq'],
     ['users', 'users_id_seq'],
     ['reviews', 'reviews_id_seq'],
+    ['people', 'people_id_seq'],
+    ['genres', 'genres_id_seq'],
   ]) {
     await dataSource.query(
       `SELECT setval('${seq}', (SELECT max("id") FROM "${table}"))`,
