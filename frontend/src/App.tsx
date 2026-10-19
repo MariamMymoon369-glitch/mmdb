@@ -15,10 +15,10 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
-      
+      <Box sx={{ display: 'grid', gridTemplateRows: '72px 1fr 214px', minHeight: '100vh' }}>
+        <BrowserRouter>
           <Header />
-          <Box component="main" sx={{ flex: 1, width: '100%', minHeight: 'calc(100vh - 72px - 214px)' }}>
+          <Box component="main" sx={{ width: '100%' }}>
             <Routes>
               <Route path="/homepage" element={<HomePage />} />
               <Route path="/" element={<Navigate to="/homepage" replace />} />
@@ -33,8 +33,9 @@ function App() {
             </Routes>
           </Box>
           <SessionExpiredDialog />
-          <Footer />     
-      </BrowserRouter>
+          <Footer />
+        </BrowserRouter>
+      </Box>
     </ThemeProvider>
   );
 }

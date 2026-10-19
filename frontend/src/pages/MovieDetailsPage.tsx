@@ -257,7 +257,16 @@ function MovieDetailsPage() {
           to="/homepage"
           sx={{ color: 'text.secondary', fontSize: '12px', textDecoration: 'none' }}
         >
-          Home&nbsp;|&nbsp;{movie.title}
+          Home
+        </Typography>
+        <Typography component="span" sx={{ color: 'text.secondary', fontSize: '12px' }}>
+          &nbsp;|&nbsp;
+        </Typography>
+        <Typography
+          component="span"
+          sx={{ color: 'primary.main', fontWeight: 'bold', fontSize: '12px' }}
+        >
+          {movie.title}
         </Typography>
       </Box>
 
@@ -369,7 +378,7 @@ function MovieDetailsPage() {
 
         <Stack direction="row" spacing={1} sx={{ alignItems: 'center', mt: 1 }}>
           <StarIcon sx={{ fontSize: 18, color: 'star' }} />
-          <Typography sx={{ fontWeight: 700, color: 'primary.main', fontSize: '16px' }}>
+          <Typography sx={{ fontWeight: 700, color: 'secondary.main', fontSize: '16px' }}>
             {Number(movie.rating).toFixed(1)}
           </Typography>
           <Typography sx={{ color: 'grey.600', fontSize: '16px', fontWeight: 500 }}>
