@@ -509,7 +509,7 @@ function MovieDetailsPage() {
           spacing={2}
           sx={{
             border: '1px solid',
-          borderColor: 'grey.200',
+            borderColor: 'grey.200',
             borderRadius: '12px',
             alignItems: 'center',
             px: 2,
@@ -568,10 +568,10 @@ function MovieDetailsPage() {
                 </Stack>
                 {review.rating != null && (
                   <Stack direction="row" spacing={0.5} sx={{ alignItems: 'center', mb: 1 }}>
+                    <StarIcon sx={{ fontSize: 16, color: 'star' }} />
                     <Typography sx={{ fontWeight: 700, fontSize: '0.85rem' }}>
                       {review.rating}
                     </Typography>
-                    <StarIcon sx={{ fontSize: 16, color: 'star' }} />
                   </Stack>
                 )}
                 {review.title && (
@@ -598,9 +598,9 @@ function MovieDetailsPage() {
         <RateMovieModal
           open={rateOpen}
           onClose={() => setRateOpen(false)}
-        posterUrl={movie.posterUrl}
-        title={movie.title}
-        initialRating={movie.myRating}
+          posterUrl={movie.posterUrl}
+          title={movie.title}
+          initialRating={movie.myRating}
           onSubmit={handleRate}
         />
       )}
