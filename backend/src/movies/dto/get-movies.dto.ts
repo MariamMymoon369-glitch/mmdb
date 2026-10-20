@@ -1,4 +1,11 @@
-import { IsOptional, IsInt, Min, IsEnum } from 'class-validator';
+import {
+  IsOptional,
+  IsInt,
+  Min,
+  IsEnum,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 import { Type } from 'class-transformer';
 
 export enum MovieSortOption {
@@ -22,4 +29,9 @@ export class GetMoviesDto {
   @IsOptional()
   @IsEnum(MovieSortOption)
   sort: MovieSortOption = MovieSortOption.NEWEST;
+
+  @IsOptional()
+  @IsString()
+  @MaxLength(100)
+  genre?: string;
 }

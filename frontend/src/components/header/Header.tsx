@@ -1,10 +1,14 @@
 import React from 'react';
-import { Avatar, Box, Button, Menu, MenuItem, Typography, InputBase, } from '@mui/material';
-import SearchIcon from '@mui/icons-material/Search';
+import { Avatar, Box, Button, Menu, MenuItem, Typography, } from '@mui/material';
 import ArrowDropDownIcon from '@mui/icons-material/ArrowDropDown';
-import { useNavigate, useLocation} from 'react-router-dom';
+import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../../hooks/useAuth';
+import useFetch from '../../hooks/useFetch';
+import { type Genre } from '../../types/movie';
 import profileSvg from '../../assets/profile.svg';
+import SearchBar from './SearchBar';
+
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export const Header: React.FC = () => {
     const navigate = useNavigate();
@@ -12,6 +16,11 @@ export const Header: React.FC = () => {
     const { user, isLoggedIn, logout } = useAuth();
     const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
     const menuOpen = Boolean(anchorEl);
+    const [genreAnchorEl, setGenreAnchorEl] = React.useState<null | HTMLElement>(null);
+    const [searchParams] = useSearchParams();
+    const { data: genres } = useFetch<Genre[]>(`${API_BASE_URL}/genres`);
+
+    const selectedGenre = searchParams.get('genre');
 
     const handleMenuOpen = (event: React.MouseEvent<HTMLElement>) => {
       setAnchorEl(event.currentTarget);
@@ -19,6 +28,23 @@ export const Header: React.FC = () => {
 
     const handleMenuClose = () => {
       setAnchorEl(null);
+    };
+
+    const handleGenreOpen = (event: React.MouseEvent<HTMLElement>) => {
+      setGenreAnchorEl(event.currentTarget);
+    };
+
+    const handleGenreClose = () => {
+      setGenreAnchorEl(null);
+    };
+
+    const handleGenreSelect = (genre: string | null) => {
+      setGenreAnchorEl(null);
+      const next = new URLSearchParams();
+      if (genre !== null) {
+        next.set('genre', genre);
+      }
+      navigate({ pathname: '/homepage', search: next.toString() });
     };
 
     const handleLogout = async () => {
@@ -93,6 +119,7 @@ export const Header: React.FC = () => {
         </Typography>
 
         <Typography
+          onClick={handleGenreOpen}
           sx={{
             color: 'text.secondary',
             fontFamily: 'Inter, sans-serif',
@@ -107,36 +134,37 @@ export const Header: React.FC = () => {
         >
           Genre <ArrowDropDownIcon fontSize="medium" />
         </Typography>
+        <Menu
+          anchorEl={genreAnchorEl}
+          open={Boolean(genreAnchorEl)}
+          onClose={handleGenreClose}
+          anchorOrigin={{ vertical: 'bottom', horizontal: 'left' }}
+          transformOrigin={{ vertical: 'top', horizontal: 'left' }}
+        >
+          <MenuItem
+            selected={!selectedGenre}
+            onClick={() => handleGenreSelect(null)}
+          >
+            All Genres
+          </MenuItem>
+          {(genres ?? []).map((genre) => (
+            <MenuItem
+              key={genre.id}
+              selected={selectedGenre === genre.name}
+              onClick={() => handleGenreSelect(genre.name)}
+            >
+              {genre.name}
+            </MenuItem>
+          ))}
+        </Menu>
       </Box>
 </Box>
-    
+
       <Box sx={{ display: 'flex',
                  alignItems: 'center',
                  gap: '12px',
             }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            width: '227px',
-            height: '48px',
-            border: (theme) => `1px solid ${theme.palette.grey[200]}`,
-            borderRadius: '60px',
-            padding: '12px 16px',
-            gap:'12px'
-          }}
-        >
-          <SearchIcon sx={{ color: 'text.secondary', }} />
-          <InputBase
-            placeholder="Search"
-            sx={{
-              color: 'text.secondary',
-              fontFamily: 'Inter, sans-serif',
-              fontSize: '16px',
-              width: '100%',
-            }}
-          />
-        </Box>
+        <SearchBar />
 
         {isLoggedIn && user ? (
           <>
