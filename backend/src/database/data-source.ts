@@ -5,6 +5,8 @@ import { User } from '../users/user.entity';
 import { Review } from '../reviews/review.entity';
 import { RevokedToken } from '../auth/revoked-token.entity';
 import { Person } from '../people/person.entity';
+import { PersonMovieCredit } from '../people/person-movie-credit.entity';
+import { Award } from '../people/award.entity';
 import { MovieCast } from '../movies/movie-cast.entity';
 import { MovieCrew } from '../movies/movie-crew.entity';
 import { Genre } from '../genres/genre.entity';
@@ -28,6 +30,8 @@ export default new DataSource({
     MovieCrew,
     Genre,
     MovieGenre,
+    PersonMovieCredit,
+    Award,
   ],
 
   migrations: [__dirname + '/migrations/*{.ts,.js}'],

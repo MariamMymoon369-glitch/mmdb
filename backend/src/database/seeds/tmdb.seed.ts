@@ -1,4 +1,5 @@
 import 'dotenv/config';
+import { ConfigService } from '@nestjs/config';
 import dataSource from '../data-source';
 import { Movie } from '../../movies/movie.entity';
 import { User } from '../../users/user.entity';
@@ -8,9 +9,11 @@ import { MovieCast } from '../../movies/movie-cast.entity';
 import { MovieCrew } from '../../movies/movie-crew.entity';
 import { Genre } from '../../genres/genre.entity';
 import { MovieGenre } from '../../movies/movie-genre.entity';
+import { TmdbService } from '../../tmdb/tmdb.service';
+import { hydratePeople } from './hydrate-people';
+import { importActorMovies } from './import-actor-movies';
 
-const TMDB_BASE = 'https://api.themoviedb.org/3';
-const POSTER_BASE = 'https://image.tmdb.org/t/p/w500';
+const tmdb = new TmdbService(new ConfigService(process.env));
 
 interface TmdbListItem {
   id: number;
@@ -45,25 +48,7 @@ interface TmdbDetail {
 }
 
 function tmdbFetch(path: string): Promise<unknown> {
-  const token = process.env.TMDB_READ_TOKEN;
-  const apiKey = process.env.TMDB_API_KEY;
-  if (!token && !apiKey) {
-    throw new Error(
-      'Set TMDB_READ_TOKEN (v4) or TMDB_API_KEY (v3) in backend/.env',
-    );
-  }
-  const url = token
-    ? `${TMDB_BASE}${path}`
-    : `${TMDB_BASE}${path}${path.includes('?') ? '&' : '?'}api_key=${apiKey}`;
-  return fetch(url, {
-    headers: {
-      accept: 'application/json',
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-  }).then(async (res) => {
-    if (!res.ok) throw new Error(`TMDB ${res.status}: ${await res.text()}`);
-    return res.json() as Promise<unknown>;
-  });
+  return tmdb.fetchJson<unknown>(path);
 }
 
 const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -176,7 +161,7 @@ async function main() {
       releaseYear: year,
       runtimeMinutes: detail?.runtime ?? null,
       overview: item.overview || null,
-      posterUrl: posterPath ? `${POSTER_BASE}${posterPath}` : null,
+      posterUrl: tmdb.imageUrl(posterPath),
       trailerUrl: trailerKey
         ? `https://www.youtube.com/watch?v=${trailerKey}`
         : null,
@@ -208,7 +193,7 @@ async function main() {
       peopleRepo.create({
         tmdbId: p.id,
         name: p.name,
-        photoUrl: p.profile_path ? `${POSTER_BASE}${p.profile_path}` : null,
+        photoUrl: tmdb.imageUrl(p.profile_path),
       }),
     );
   };
@@ -381,7 +366,22 @@ async function main() {
       `SELECT setval('${seq}', (SELECT max("id") FROM "${table}"))`,
     );
   }
-  console.log('Aggregates recomputed, sequences fixed. Done.');
+  console.log('Aggregates recomputed, sequences fixed.');
+
+  const hydration = await hydratePeople(dataSource, {
+    concurrency: 5,
+    onProgress: (message) => console.log(message),
+  });
+  console.log('Actor details hydrated:', JSON.stringify(hydration));
+
+  const actorMovies = await importActorMovies(dataSource, {
+    total: 300,
+    concurrency: 5,
+    onProgress: (message) => console.log(message),
+  });
+  console.log('Actor movies imported:', JSON.stringify(actorMovies));
+
+  console.log('Done.');
 }
 
 main()

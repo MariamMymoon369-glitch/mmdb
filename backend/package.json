@@ -13,6 +13,8 @@
     "start:debug": "nest start --debug --watch",
     "start:prod": "node dist/main",
     "seed": "npm run build && node dist/database/seeds/tmdb.seed.js",
+    "seed:people": "npm run build && node dist/database/seeds/hydrate-people.seed.js",
+    "seed:actor-movies": "npm run build && node dist/database/seeds/import-actor-movies.seed.js",
     "typeorm": "typeorm-ts-node-commonjs -d src/database/data-source.ts",
     "migration:generate": "npm run typeorm -- migration:generate",
     "migration:create": "npm run typeorm -- migration:create",
