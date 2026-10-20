@@ -208,9 +208,10 @@ export class MoviesService {
       return null;
     }
     try {
-      const payload = this.jwtService.verify<{ sub: number | string; jti?: string }>(
-        authorization.slice('Bearer '.length),
-      );
+      const payload = this.jwtService.verify<{
+        sub: number | string;
+        jti?: string;
+      }>(authorization.slice('Bearer '.length));
       if (payload.jti && (await this.authService.isRevoked(payload.jti))) {
         return null;
       }

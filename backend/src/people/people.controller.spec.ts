@@ -6,6 +6,7 @@ describe('PeopleController', () => {
   let controller: PeopleController;
 
   const mockPeopleService = {
+    findDetails: jest.fn(),
     findByUuid: jest.fn(),
   };
 
@@ -23,13 +24,17 @@ describe('PeopleController', () => {
     controller = module.get<PeopleController>(PeopleController);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
   it('should be defined', () => {
     expect(controller).toBeDefined();
   });
 
-  it('getPerson delegates to the service', async () => {
-    await controller.getPerson('p1');
+  it('getPerson delegates to the service', () => {
+    void controller.getPerson('p1');
 
-    expect(mockPeopleService.findByUuid).toHaveBeenCalledWith('p1');
+    expect(mockPeopleService.findDetails).toHaveBeenCalledWith('p1');
   });
 });

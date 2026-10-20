@@ -18,15 +18,15 @@ describe('MoviesService', () => {
   const mockMovieRepository = {
     findAndCount: jest.fn(),
     findOne: jest.fn(),
-    create: jest.fn((x) => x),
-    save: jest.fn((x) => Promise.resolve(x)),
+    create: jest.fn((entity: unknown) => entity),
+    save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   };
 
   const mockReviewRepository = {
     findOne: jest.fn(),
     find: jest.fn(),
-    create: jest.fn((x) => x),
-    save: jest.fn((x) => Promise.resolve(x)),
+    create: jest.fn((entity: unknown) => entity),
+    save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   };
 
   const mockAuthService = {
@@ -228,7 +228,11 @@ describe('MoviesService', () => {
       { rating: 10, body: null },
       { rating: null, body: 'Nice' },
     ]);
-    mockMovieRepository.findOne.mockResolvedValue({ id: 1, rating: 0, reviewCount: 0 });
+    mockMovieRepository.findOne.mockResolvedValue({
+      id: 1,
+      rating: 0,
+      reviewCount: 0,
+    });
 
     await service.refreshMovieAggregates(1);
 

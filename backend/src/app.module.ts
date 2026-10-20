@@ -8,6 +8,8 @@ import { AuthModule } from './auth/auth.module';
 import { MoviesModule } from './movies/movies.module';
 import { ReviewsModule } from './reviews/reviews.module';
 import { PeopleModule } from './people/people.module';
+import { TmdbModule } from './tmdb/tmdb.module';
+import { WikidataModule } from './wikidata/wikidata.module';
 
 @Module({
   imports: [
@@ -41,6 +43,10 @@ import { PeopleModule } from './people/people.module';
     ReviewsModule,
 
     PeopleModule,
+
+    TmdbModule,
+
+    WikidataModule,
   ],
 
   controllers: [AppController],

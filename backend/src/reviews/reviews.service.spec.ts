@@ -16,8 +16,10 @@ describe('ReviewsService', () => {
   const mockReviewRepository = {
     findOne: jest.fn(),
     findAndCount: jest.fn(),
-    create: jest.fn((x) => x),
-    save: jest.fn((x) => Promise.resolve({ uuid: 'rev-uuid', ...x })),
+    create: jest.fn((entity: Record<string, unknown>) => entity),
+    save: jest.fn((entity: Record<string, unknown>) =>
+      Promise.resolve({ uuid: 'rev-uuid', ...entity }),
+    ),
   };
 
   const mockMovieRepository = {
