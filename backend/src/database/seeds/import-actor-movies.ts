@@ -34,6 +34,7 @@ export interface ActorMovieImportSummary {
   skippedIncomplete: number;
   failed: number;
   linkedCredits: number;
+  linkedAwards: number;
   addedCastRows: number;
 }
 
@@ -327,6 +328,9 @@ export async function importActorMovies(
   const linkedCredits = await peopleService.relinkCredits();
   report(`Linked ${linkedCredits} acting credits to local movies`);
 
+  const linkedAwards = await peopleService.relinkAwards();
+  report(`Linked ${linkedAwards} awards to local movies`);
+
   const importedIds = imported.map((entry) => entry.movie.id);
   const addedCastRows = await syncCastFromCredits(dataSource, importedIds);
   report(`Created ${addedCastRows} cast rows for the imported movies`);
@@ -348,6 +352,7 @@ export async function importActorMovies(
     skippedIncomplete,
     failed,
     linkedCredits,
+    linkedAwards,
     addedCastRows,
   };
 }

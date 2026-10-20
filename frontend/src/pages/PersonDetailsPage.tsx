@@ -20,6 +20,11 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 const BIOGRAPHY_PREVIEW_LENGTH = 480;
 
+function hasInAppHistory(): boolean {
+  const state = window.history.state as { idx?: number } | null;
+  return typeof state?.idx === 'number' && state.idx > 0;
+}
+
 function PersonDetailsPage() {
   const { uuid } = useParams<{ uuid: string }>();
   const navigate = useNavigate();
@@ -30,7 +35,7 @@ function PersonDetailsPage() {
   );
 
   const handleBack = () => {
-    if (window.history.length > 1) {
+    if (hasInAppHistory()) {
       navigate(-1);
     } else {
       navigate('/homepage');

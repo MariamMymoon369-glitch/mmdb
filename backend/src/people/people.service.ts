@@ -1,6 +1,6 @@
 import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { In, IsNull, Repository } from 'typeorm';
 import { Person } from './person.entity';
 import { PersonMovieCredit } from './person-movie-credit.entity';
 import { Award } from './award.entity';
@@ -25,6 +25,7 @@ import { WikidataAward } from '../wikidata/wikidata.types';
 const REVALIDATION_MS = 7 * 24 * 60 * 60 * 1000;
 const FAILED_RETRY_MS = 24 * 60 * 60 * 1000;
 const TMDB_LOOKUP_CONCURRENCY = 5;
+const GLOBAL_MAP_TTL_MS = 60_000;
 
 interface CreditRow {
   personId: number;
@@ -68,6 +69,11 @@ export class PeopleService {
     number,
     Promise<'complete' | 'failed'>
   >();
+
+  private globalTmdbMovieMap: {
+    map: Map<number, Movie>;
+    loadedAt: number;
+  } | null = null;
 
   constructor(
     @InjectRepository(Person)
@@ -273,6 +279,7 @@ export class PeopleService {
       'tmdbMovieId',
       'characterName',
     ]);
+    this.invalidateGlobalTmdbMovieMap();
   }
 
   private async storeAwards(
@@ -325,6 +332,7 @@ export class PeopleService {
     });
 
     const moviesByTmdbId = await this.buildLocalMovieMap(person.id);
+    const globalMoviesByTmdbId = await this.getGlobalTmdbMovieMap();
     const matches = await this.resolveLocalMovies(
       rows.map((row) => ({
         title: row.associatedMovieTitle ?? '',
@@ -336,7 +344,8 @@ export class PeopleService {
       const byTmdbId =
         row.associatedTmdbMovieId === null
           ? undefined
-          : moviesByTmdbId.get(row.associatedTmdbMovieId);
+          : (moviesByTmdbId.get(row.associatedTmdbMovieId) ??
+            globalMoviesByTmdbId.get(row.associatedTmdbMovieId));
       const byTitle = matches.get(
         this.movieKey(row.associatedMovieTitle ?? '', row.associatedMovieYear),
       );
@@ -471,7 +480,95 @@ export class PeopleService {
       }
     }
 
+    this.invalidateGlobalTmdbMovieMap();
     return linked;
+  }
+
+  async relinkAwards(): Promise<number> {
+    const unlinked = await this.awardRepository.find({
+      where: { movieId: IsNull() },
+    });
+
+    if (unlinked.length === 0) {
+      return 0;
+    }
+
+    const byPerson = new Map<number, Award[]>();
+    for (const award of unlinked) {
+      const bucket = byPerson.get(award.personId);
+      if (bucket) {
+        bucket.push(award);
+      } else {
+        byPerson.set(award.personId, [award]);
+      }
+    }
+
+    let linked = 0;
+    const globalMoviesByTmdbId = await this.getGlobalTmdbMovieMap();
+
+    for (const awards of byPerson.values()) {
+      const matches = await this.resolveLocalMovies(
+        awards.map((award) => ({
+          title: award.associatedMovieTitle ?? '',
+          year: award.associatedMovieYear,
+        })),
+      );
+
+      for (const award of awards) {
+        const byTmdbId =
+          award.associatedTmdbMovieId === null
+            ? undefined
+            : globalMoviesByTmdbId.get(award.associatedTmdbMovieId);
+        const byTitle = matches.get(
+          this.movieKey(
+            award.associatedMovieTitle ?? '',
+            award.associatedMovieYear,
+          ),
+        );
+        const match = byTmdbId ?? byTitle;
+
+        if (!match) {
+          continue;
+        }
+
+        await this.awardRepository.update(award.id, { movieId: match.id });
+        linked += 1;
+      }
+    }
+
+    return linked;
+  }
+
+  private async getGlobalTmdbMovieMap(): Promise<Map<number, Movie>> {
+    const cached = this.globalTmdbMovieMap;
+    if (cached && Date.now() - cached.loadedAt < GLOBAL_MAP_TTL_MS) {
+      return cached.map;
+    }
+
+    const rows = (await this.creditRepository.query(
+      `SELECT DISTINCT tmdb_movie_id, movie_id FROM person_movie_credits WHERE movie_id IS NOT NULL`,
+    )) as unknown as { tmdb_movie_id: number; movie_id: number }[];
+
+    const movieIds = [...new Set(rows.map((row) => row.movie_id))];
+    const movies = movieIds.length
+      ? await this.movieRepository.find({ where: { id: In(movieIds) } })
+      : [];
+    const movieById = new Map(movies.map((movie) => [movie.id, movie]));
+
+    const map = new Map<number, Movie>();
+    for (const row of rows) {
+      const movie = movieById.get(row.movie_id);
+      if (movie && !map.has(row.tmdb_movie_id)) {
+        map.set(row.tmdb_movie_id, movie);
+      }
+    }
+
+    this.globalTmdbMovieMap = { map, loadedAt: Date.now() };
+    return map;
+  }
+
+  private invalidateGlobalTmdbMovieMap(): void {
+    this.globalTmdbMovieMap = null;
   }
 
   private async buildLocalMovieMap(

@@ -17,11 +17,13 @@ const mockPersonRepository = {
 const mockCreditRepository = {
   find: jest.fn<Promise<unknown[]>, [unknown]>(),
   upsert: jest.fn<Promise<unknown>, [unknown[], string[]]>(),
+  query: jest.fn<Promise<unknown[]>, [string]>(),
 };
 
 const mockAwardRepository = {
   find: jest.fn<Promise<unknown[]>, [unknown]>(),
   upsert: jest.fn<Promise<unknown>, [unknown[], string[]]>(),
+  update: jest.fn<Promise<unknown>, [unknown, unknown]>(),
 };
 
 const mockMovieRepository = {
@@ -84,6 +86,7 @@ describe('PeopleService', () => {
     service = module.get<PeopleService>(PeopleService);
 
     mockCreditRepository.find.mockResolvedValue([]);
+    mockCreditRepository.query.mockResolvedValue([]);
     mockAwardRepository.find.mockResolvedValue([]);
     mockMovieRepository.find.mockResolvedValue([]);
     mockMovieRepository.createQueryBuilder.mockReturnValue({
@@ -648,5 +651,157 @@ describe('PeopleService', () => {
         posterUrl: 'https://image.tmdb.org/t/p/w500/poster.jpg',
       },
     ]);
+  });
+
+  describe('relinkAwards', () => {
+    const unlinkedAward = (overrides: Partial<Award> = {}): Award =>
+      ({
+        id: 5,
+        personId: 1,
+        movieId: null,
+        year: 1995,
+        body: 'Academy Award for Best Actor',
+        category: 'Best Actor',
+        result: 'Winner',
+        associatedMovieTitle: 'Forrest Gump',
+        associatedMovieYear: 1994,
+        associatedTmdbMovieId: 13,
+        posterUrl: null,
+        source: 'wikidata',
+        sourceId: 'statement-1',
+        ...overrides,
+      }) as Award;
+
+    const linkedCredit = (overrides: Partial<PersonMovieCredit> = {}) =>
+      ({
+        id: 1,
+        personId: 1,
+        movieId: 7,
+        tmdbMovieId: 13,
+        title: 'Forrest Gump',
+        releaseYear: 1994,
+        characterName: 'Forrest Gump',
+        posterUrl: null,
+        billingOrder: 0,
+        source: 'tmdb',
+        sourceId: 'credit-1',
+        ...overrides,
+      }) as PersonMovieCredit;
+
+    const localMovie = {
+      id: 7,
+      uuid: 'movie-uuid',
+      title: 'Forrest Gump',
+      releaseYear: 1994,
+      posterUrl: null,
+    } as Movie;
+
+    it('links an award to the local movie of its associated work', async () => {
+      mockAwardRepository.find.mockResolvedValue([unlinkedAward()]);
+      mockCreditRepository.find.mockResolvedValue([linkedCredit()]);
+      mockCreditRepository.query.mockResolvedValue([
+        { tmdb_movie_id: 13, movie_id: 7 },
+      ]);
+      mockMovieRepository.find.mockResolvedValue([localMovie]);
+
+      const linked = await service.relinkAwards();
+
+      expect(linked).toBe(1);
+      expect(mockAwardRepository.update).toHaveBeenCalledWith(5, {
+        movieId: 7,
+      });
+    });
+
+    it('links an award by title and release year when it has no TMDB id', async () => {
+      mockAwardRepository.find.mockResolvedValue([
+        unlinkedAward({ associatedTmdbMovieId: null }),
+      ]);
+      mockCreditRepository.find.mockResolvedValue([]);
+      mockMovieRepository.createQueryBuilder.mockReturnValue({
+        where: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([localMovie]),
+      });
+
+      const linked = await service.relinkAwards();
+
+      expect(linked).toBe(1);
+      expect(mockAwardRepository.update).toHaveBeenCalledWith(5, {
+        movieId: 7,
+      });
+    });
+
+    it('does not link an award when no local movie matches', async () => {
+      mockAwardRepository.find.mockResolvedValue([
+        unlinkedAward({ associatedTmdbMovieId: null }),
+      ]);
+      mockCreditRepository.find.mockResolvedValue([]);
+      mockMovieRepository.createQueryBuilder.mockReturnValue({
+        where: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([]),
+      });
+
+      const linked = await service.relinkAwards();
+
+      expect(linked).toBe(0);
+      expect(mockAwardRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('does not link the same award twice', async () => {
+      mockAwardRepository.find
+        .mockResolvedValueOnce([unlinkedAward()])
+        .mockResolvedValueOnce([]);
+      mockCreditRepository.find.mockResolvedValue([linkedCredit()]);
+      mockCreditRepository.query.mockResolvedValue([
+        { tmdb_movie_id: 13, movie_id: 7 },
+      ]);
+      mockMovieRepository.find.mockResolvedValue([localMovie]);
+
+      expect(await service.relinkAwards()).toBe(1);
+      expect(await service.relinkAwards()).toBe(0);
+      expect(mockAwardRepository.update).toHaveBeenCalledTimes(1);
+    });
+
+    it('leaves the awards that are already linked untouched', async () => {
+      mockAwardRepository.find.mockResolvedValue([]);
+
+      const linked = await service.relinkAwards();
+
+      expect(linked).toBe(0);
+      expect(mockAwardRepository.update).not.toHaveBeenCalled();
+    });
+
+    it('links an award to a movie that was imported later through the TMDB id', async () => {
+      mockAwardRepository.find.mockResolvedValue([
+        unlinkedAward({
+          associatedMovieTitle: 'Star Wars: Episode IV - A New Hope',
+          associatedMovieYear: 1977,
+          associatedTmdbMovieId: 11,
+        }),
+      ]);
+      mockCreditRepository.find.mockResolvedValue([]);
+      mockCreditRepository.query.mockResolvedValue([
+        { tmdb_movie_id: 11, movie_id: 194 },
+      ]);
+      mockMovieRepository.find.mockResolvedValue([
+        {
+          id: 194,
+          uuid: 'star-wars-uuid',
+          title: 'Star Wars',
+          releaseYear: 1977,
+          posterUrl: null,
+        } as Movie,
+      ]);
+      mockMovieRepository.createQueryBuilder.mockReturnValue({
+        where: jest.fn().mockReturnThis(),
+        getMany: jest.fn().mockResolvedValue([]),
+      });
+
+      const linked = await service.relinkAwards();
+
+      expect(linked).toBe(1);
+      expect(mockAwardRepository.update).toHaveBeenCalledWith(5, {
+        movieId: 194,
+      });
+    });
   });
 });
