@@ -41,7 +41,7 @@ const typography = {
 };
 
 let theme = createTheme({
-  palette: palette as never,
+  palette,
   typography,
 });
 
