@@ -1,7 +1,8 @@
 import { Box, CssBaseline, ThemeProvider } from '@mui/material';
 import { BrowserRouter, Route, Routes, Navigate } from 'react-router-dom';
 import HomePage from './pages/HomePage';
-import MoviePlaceholderPage from './pages/MoviePlaceholderPage';
+import MovieDetailsPage from './pages/MovieDetailsPage';
+import PersonDetailsPage from './pages/PersonDetailsPage';
 import { NotFoundPage } from './pages/NotFoundPage';
 import theme from './theme/theme';
 import Header from './components/header/Header';
@@ -14,15 +15,16 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <BrowserRouter>
-      
+      <Box sx={{ display: 'grid', gridTemplateRows: '72px 1fr 214px', minHeight: '100vh' }}>
+        <BrowserRouter>
           <Header />
-          <Box component="main" sx={{ flex: 1, width: '100%', minHeight: 'calc(100vh - 72px - 214px)' }}>
+          <Box component="main" sx={{ width: '100%' }}>
             <Routes>
               <Route path="/homepage" element={<HomePage />} />
               <Route path="/" element={<Navigate to="/homepage" replace />} />
               <Route path="/home" element={<Navigate to="/homepage" replace />} />
-              <Route path="/movies/:id" element={<MoviePlaceholderPage />} />
+              <Route path="/movies/:uuid" element={<MovieDetailsPage />} />
+              <Route path="/people/:uuid" element={<PersonDetailsPage />} />
               <Route path="*" element={<NotFoundPage />} />
               <Route path="/login" element={<LoginPage />} />
               <Route path="/auth/login" element={<Navigate to="/login" replace />} />
@@ -31,8 +33,9 @@ function App() {
             </Routes>
           </Box>
           <SessionExpiredDialog />
-          <Footer />     
-      </BrowserRouter>
+          <Footer />
+        </BrowserRouter>
+      </Box>
     </ThemeProvider>
   );
 }
