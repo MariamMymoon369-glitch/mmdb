@@ -1,12 +1,17 @@
 import { useEffect, useState } from 'react';
 import { getStoredToken, notifySessionExpired } from './useAuth';
 
-function useFetch<T>(url: string) {
+function useFetch<T>(url: string, options: { enabled?: boolean } = {}) {
+  const { enabled = true } = options;
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!enabled) {
+      return;
+    }
+
     const controller = new AbortController();
     let cancelled = false;
 
@@ -63,9 +68,13 @@ function useFetch<T>(url: string) {
       cancelled = true;
       controller.abort();
     };
-  }, [url]);
+  }, [url, enabled]);
 
-  return { data, loading, error };
+  return {
+    data: enabled ? data : null,
+    loading: enabled ? loading : false,
+    error: enabled ? error : null,
+  };
 }
 
 export default useFetch;

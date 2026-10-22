@@ -1,5 +1,6 @@
 import { Alert, Box, Pagination, Stack, Typography, Dialog, DialogContent, DialogActions, Button } from '@mui/material';
 import { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import MovieGrid from '../components/movies/MovieGrid';
 import MovieSort from '../components/movies/MovieSort';
 import { type PaginatedMovies } from '../types/movie';
@@ -8,12 +9,17 @@ import useFetch from '../hooks/useFetch';
 function HomePage() {
   const [page, setPage] = useState(1);
   const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
+  const [searchParams] = useSearchParams();
+  const genre = searchParams.get('genre');
 
   const queryParams = new URLSearchParams({
     page: page.toString(),
     limit: '8',
     sort: sort,
   });
+  if (genre) {
+    queryParams.set('genre', genre);
+  }
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
   const { data, loading, error } = useFetch<PaginatedMovies>(
     `${API_BASE_URL}/movies?${queryParams.toString()}`
@@ -47,7 +53,7 @@ function HomePage() {
             color: 'text.primary',
           }}
         >
-          All Movies
+          {genre ? `${genre} Movies` : 'All Movies'}
         </Typography>
         <MovieSort
           sort={sort}

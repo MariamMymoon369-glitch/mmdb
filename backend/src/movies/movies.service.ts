@@ -1,6 +1,10 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  NotFoundException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, In, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { Movie } from './movie.entity';
 import { GetMoviesDto, MovieSortOption } from './dto/get-movies.dto';
@@ -11,6 +15,8 @@ import {
   PersonSummaryDto,
 } from './dto/movie-details.dto';
 import { RateMovieDto } from './dto/rate-movie.dto';
+import { MovieGenre } from './movie-genre.entity';
+import { Genre } from '../genres/genre.entity';
 import { Review } from '../reviews/review.entity';
 import { User } from '../users/user.entity';
 import { AuthService } from '../auth/auth.service';
@@ -24,6 +30,10 @@ export class MoviesService {
     private readonly movieRepository: Repository<Movie>,
     @InjectRepository(Review)
     private readonly reviewRepository: Repository<Review>,
+    @InjectRepository(Genre)
+    private readonly genreRepository: Repository<Genre>,
+    @InjectRepository(MovieGenre)
+    private readonly movieGenreRepository: Repository<MovieGenre>,
     private readonly authService: AuthService,
     private readonly jwtService: JwtService,
   ) {}
@@ -33,7 +43,12 @@ export class MoviesService {
 
     const orderDirection = sort === MovieSortOption.OLDEST ? 'ASC' : 'DESC';
 
+    const where = queryDto.genre
+      ? { id: In(await this.findMovieIdsByGenre(queryDto.genre)) }
+      : undefined;
+
     const [data, total] = await this.movieRepository.findAndCount({
+      where,
       order: {
         releaseYear: orderDirection,
         id: 'ASC',
@@ -57,6 +72,27 @@ export class MoviesService {
       totalPages: Math.ceil(total / limit),
     };
   }
+  /**
+   * Resolves the movies of a genre through the movie_genres relation.
+   * The name is matched case insensitively, an unknown genre is rejected.
+   */
+  private async findMovieIdsByGenre(name: string): Promise<number[]> {
+    const genre = await this.genreRepository.findOne({
+      where: { name: ILike(name) },
+    });
+
+    if (!genre) {
+      throw new BadRequestException(`Unknown genre: ${name}`);
+    }
+
+    const links = await this.movieGenreRepository.find({
+      where: { genreId: genre.id },
+      select: { movieId: true },
+    });
+
+    return links.map((link) => link.movieId);
+  }
+
   async create(createMovieDto: CreateMovieDto): Promise<Movie> {
     const newMovie = this.movieRepository.create(createMovieDto);
     return await this.movieRepository.save(newMovie);

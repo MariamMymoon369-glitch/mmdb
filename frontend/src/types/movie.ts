@@ -100,3 +100,14 @@ export interface PersonDetails {
   acting: ActingCredit[];
   awards: AwardEntry[];
 }
+
+export interface SearchResults {
+  query: string;
+  movies: Movie[];
+  people: PersonSummary[];
+}
+
+export interface Genre {
+  id: number;
+  name: string;
+}

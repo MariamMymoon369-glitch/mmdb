@@ -1,9 +1,12 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { getRepositoryToken } from '@nestjs/typeorm';
+import { FindOperator } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { NotFoundException } from '@nestjs/common';
+import { BadRequestException, NotFoundException } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { Movie } from './movie.entity';
+import { MovieGenre } from './movie-genre.entity';
+import { Genre } from '../genres/genre.entity';
 import { Review } from '../reviews/review.entity';
 import { MovieSortOption } from './dto/get-movies.dto';
 import { AuthService } from '../auth/auth.service';
@@ -16,8 +19,8 @@ describe('MoviesService', () => {
   let service: MoviesService;
 
   const mockMovieRepository = {
-    findAndCount: jest.fn(),
-    findOne: jest.fn(),
+    findAndCount: jest.fn<Promise<[unknown[], number]>, [unknown]>(),
+    findOne: jest.fn<Promise<unknown>, [unknown]>(),
     create: jest.fn((entity: unknown) => entity),
     save: jest.fn((entity: unknown) => Promise.resolve(entity)),
   };
@@ -27,6 +30,14 @@ describe('MoviesService', () => {
     find: jest.fn(),
     create: jest.fn((entity: unknown) => entity),
     save: jest.fn((entity: unknown) => Promise.resolve(entity)),
+  };
+
+  const mockGenreRepository = {
+    findOne: jest.fn<Promise<{ id: number; name: string } | null>, [unknown]>(),
+  };
+
+  const mockMovieGenreRepository = {
+    find: jest.fn<Promise<{ movieId: number }[]>, [unknown]>(),
   };
 
   const mockAuthService = {
@@ -50,6 +61,14 @@ describe('MoviesService', () => {
           useValue: mockReviewRepository,
         },
         {
+          provide: getRepositoryToken(Genre),
+          useValue: mockGenreRepository,
+        },
+        {
+          provide: getRepositoryToken(MovieGenre),
+          useValue: mockMovieGenreRepository,
+        },
+        {
           provide: AuthService,
           useValue: mockAuthService,
         },
@@ -69,6 +88,81 @@ describe('MoviesService', () => {
 
   it('should be defined', () => {
     expect(service).toBeDefined();
+  });
+
+  it('returns every movie when no genre is given', async () => {
+    mockMovieRepository.findAndCount.mockResolvedValue([[], 0]);
+
+    await service.findAll({ page: 1, limit: 8, sort: MovieSortOption.NEWEST });
+
+    expect(mockGenreRepository.findOne).not.toHaveBeenCalled();
+    const options = mockMovieRepository.findAndCount.mock.calls[0][0] as {
+      where?: unknown;
+    };
+    expect(options.where).toBeUndefined();
+  });
+
+  it('returns only the movies of the selected genre', async () => {
+    mockGenreRepository.findOne.mockResolvedValue({ id: 4, name: 'Comedy' });
+    mockMovieGenreRepository.find.mockResolvedValue([
+      { movieId: 11 },
+      { movieId: 12 },
+    ]);
+    mockMovieRepository.findAndCount.mockResolvedValue([[], 2]);
+
+    const result = await service.findAll({
+      page: 1,
+      limit: 8,
+      sort: MovieSortOption.NEWEST,
+      genre: 'Comedy',
+    });
+
+    expect(mockMovieGenreRepository.find).toHaveBeenCalledWith({
+      where: { genreId: 4 },
+      select: { movieId: true },
+    });
+    const options = mockMovieRepository.findAndCount.mock.calls[0][0] as {
+      where?: { id?: FindOperator<number> };
+    };
+    expect(options.where?.id?.value).toEqual([11, 12]);
+    expect(result.total).toBe(2);
+  });
+
+  it('keeps the pagination and the sorting inside the selected genre', async () => {
+    mockGenreRepository.findOne.mockResolvedValue({ id: 4, name: 'Comedy' });
+    mockMovieGenreRepository.find.mockResolvedValue([{ movieId: 11 }]);
+    mockMovieRepository.findAndCount.mockResolvedValue([[], 1]);
+
+    await service.findAll({
+      page: 2,
+      limit: 8,
+      sort: MovieSortOption.OLDEST,
+      genre: 'Comedy',
+    });
+
+    const options = mockMovieRepository.findAndCount.mock.calls[0][0] as {
+      order?: unknown;
+      skip?: number;
+      take?: number;
+    };
+    expect(options.order).toEqual({ releaseYear: 'ASC', id: 'ASC' });
+    expect(options.skip).toBe(8);
+    expect(options.take).toBe(8);
+  });
+
+  it('rejects an unknown genre', async () => {
+    mockGenreRepository.findOne.mockResolvedValue(null);
+
+    await expect(
+      service.findAll({
+        page: 1,
+        limit: 8,
+        sort: MovieSortOption.NEWEST,
+        genre: 'Unknown',
+      }),
+    ).rejects.toThrow(BadRequestException);
+
+    expect(mockMovieRepository.findAndCount).not.toHaveBeenCalled();
   });
 
   it('should return paginated movies with default parameters', async () => {

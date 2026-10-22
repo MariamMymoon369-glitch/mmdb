@@ -10,6 +10,8 @@ import { ReviewsModule } from './reviews/reviews.module';
 import { PeopleModule } from './people/people.module';
 import { TmdbModule } from './tmdb/tmdb.module';
 import { WikidataModule } from './wikidata/wikidata.module';
+import { SearchModule } from './search/search.module';
+import { GenresModule } from './genres/genres.module';
 
 @Module({
   imports: [
@@ -47,6 +49,10 @@ import { WikidataModule } from './wikidata/wikidata.module';
     TmdbModule,
 
     WikidataModule,
+
+    SearchModule,
+
+    GenresModule,
   ],
 
   controllers: [AppController],
