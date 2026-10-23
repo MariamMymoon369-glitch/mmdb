@@ -1,10 +1,13 @@
-import { Alert, Box, Pagination, Stack, Typography, Dialog, DialogContent, DialogActions, Button } from '@mui/material';
+import { Alert, Box, Pagination, Stack, Typography } from '@mui/material';
 import { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import MovieGrid from '../components/movies/MovieGrid';
 import MovieSort from '../components/movies/MovieSort';
+import MovieGridSkeleton from '../components/movies/MovieGridSkeleton';
 import { type PaginatedMovies } from '../types/movie';
 import useFetch from '../hooks/useFetch';
+import { API_BASE_URL } from '../config/api';
+import ErrorDialog from '../components/common/ErrorDialog';
 
 function HomePage() {
   const [page, setPage] = useState(1);
@@ -20,7 +23,6 @@ function HomePage() {
   if (genre) {
     queryParams.set('genre', genre);
   }
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
   const { data, loading, error } = useFetch<PaginatedMovies>(
     `${API_BASE_URL}/movies?${queryParams.toString()}`
   );
@@ -31,7 +33,7 @@ function HomePage() {
     <Box
       component="main"
       sx={{
-        padding: '50px 150px',
+        padding: { xs: '24px 16px', md: '50px 150px' },
         width: '100%',
         mx: 'auto',
        
@@ -64,11 +66,7 @@ function HomePage() {
         />
       </Stack>
       <Box sx={{ minHeight: '930px' }}>
-            {loading && (
-              <Typography sx={{ py: 8, textAlign: 'center', color: 'grey.700' }}>
-                Loading...
-              </Typography>
-            )}
+            {loading && <MovieGridSkeleton />}
 
             {!loading && !error && movies.length === 0 && (
               <Alert severity="info" sx={{ borderRadius: '12px' }}>
@@ -94,44 +92,10 @@ function HomePage() {
         </Box>
       )}
 
-      <Dialog
+      <ErrorDialog
         open={!!error}
-        sx={{
-          '& .MuiDialog-paper': {
-            borderRadius: '16px',
-            padding: '24px',
-            textAlign: 'center',
-            minWidth: { xs: '300px', sm: '400px' },
-            boxShadow: '0px 10px 30px rgba(0,0,0,0.1)',
-          }
-        }}
-      >
-        <DialogContent sx={{ pb: 0 }}>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: 'red', mb: 2 }}>
-            oops!
-          </Typography>
-          <Typography sx={{ color: 'grey.600', fontSize: '1.1rem', mb: 3 }}>
-            Could not load the movies you're looking for.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
-          <Button
-            variant="contained"
-            onClick={() => window.location.reload()}
-            sx={{
-              borderRadius: '8px',
-              px: 4,
-              py: 1.5,
-              fontWeight: 700,
-              background: 'green',
-              textTransform: 'uppercase',
-              boxShadow: 'none',
-            }}
-          >
-            Retry
-          </Button>
-        </DialogActions>
-      </Dialog>
+        message="Could not load the movies you're looking for."
+      />
     </Box>
   );
 }

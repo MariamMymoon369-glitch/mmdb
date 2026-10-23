@@ -5,10 +5,8 @@ import {
   Box,
   Button,
   CardActionArea,
-  Dialog,
-  DialogActions,
-  DialogContent,
   Grid,
+  Skeleton,
   Stack,
   Typography,
 } from '@mui/material';
@@ -25,8 +23,11 @@ import useFetch from '../hooks/useFetch';
 import { authFetch, useAuth } from '../hooks/useAuth';
 import RateMovieModal from '../components/movies/RateMovieModal';
 import WriteReviewModal from '../components/movies/WriteReviewModal';
+import MovieDetailsSkeleton from '../components/movies/MovieDetailsSkeleton';
+import ErrorDialog from '../components/common/ErrorDialog';
+import PosterImage from '../components/common/PosterImage';
+import { API_BASE_URL } from '../config/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 const LANGUAGE_NAMES: Record<string, string> = {
   en: 'English',
@@ -197,53 +198,15 @@ function MovieDetailsPage() {
   };
 
   if (loading) {
-    return (
-      <Typography sx={{ py: 8, textAlign: 'center', color: 'grey.700' }}>
-        Loading...
-      </Typography>
-    );
+    return <MovieDetailsSkeleton />;
   }
 
   if (error || !movie) {
     return (
-      <Dialog
+      <ErrorDialog
         open
-        sx={{
-          '& .MuiDialog-paper': {
-            borderRadius: '16px',
-            padding: '24px',
-            textAlign: 'center',
-            minWidth: { xs: '300px', sm: '400px' },
-            boxShadow: '0px 10px 30px rgba(0,0,0,0.1)',
-          },
-        }}
-      >
-        <DialogContent sx={{ pb: 0 }}>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: 'red', mb: 2 }}>
-            oops!
-          </Typography>
-          <Typography sx={{ color: 'grey.600', fontSize: '1.1rem', mb: 3 }}>
-            Could not load this movie. It may not exist.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
-          <Button
-            variant="contained"
-            onClick={() => window.location.reload()}
-            sx={{
-              borderRadius: '8px',
-              px: 4,
-              py: 1.5,
-              fontWeight: 700,
-              background: 'green',
-              textTransform: 'uppercase',
-              boxShadow: 'none',
-            }}
-          >
-            Retry
-          </Button>
-        </DialogActions>
-      </Dialog>
+        message="Could not load this movie. It may not exist."
+      />
     );
   }
 
@@ -283,19 +246,15 @@ function MovieDetailsPage() {
         }}
       >
         <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
-          <Box
-            component="img"
-            src={movie.posterUrl || '/favicon.svg'}
+          <PosterImage
+            src={movie.posterUrl}
             alt={`${movie.title} poster`}
+            iconSize={64}
             sx={{
               width: { xs: '100%', md: 308 },
               height: { xs: 'auto', md: 416 },
               aspectRatio: { xs: '2 / 3', md: '308 / 416' },
               borderRadius: '12px',
-              objectFit: 'cover',
-            }}
-            onError={(e) => {
-              e.currentTarget.src = '/favicon.svg';
             }}
           />
 
@@ -325,18 +284,16 @@ function MovieDetailsPage() {
                   cursor: youtubeId ? 'pointer' : 'default',
                 }}
               >
-                <Box
-                  component="img"
+                <PosterImage
                   src={
                     youtubeId
                       ? `https://img.youtube.com/vi/${youtubeId}/hqdefault.jpg`
-                      : movie.posterUrl || '/favicon.svg'
+                      : movie.posterUrl
                   }
+                  fallbackSrc={youtubeId ? movie.posterUrl : null}
                   alt={`${movie.title} trailer`}
-                  sx={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                  onError={(e) => {
-                    e.currentTarget.src = movie.posterUrl || '/favicon.svg';
-                  }}
+                  iconSize={48}
+                  sx={{ width: '100%', height: '100%' }}
                 />
                 {youtubeId && (
                   <Box
@@ -459,13 +416,16 @@ function MovieDetailsPage() {
                 }}
               >
                 <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center' }}>
-                  <Box
-                    component="img"
-                    src={member.photoUrl || '/favicon.svg'}
+                  <PosterImage
+                    src={member.photoUrl}
                     alt={member.name}
-                    sx={{ width: 48, height: 48, borderRadius: '8px', objectFit: 'cover' }}
-                    onError={(e) => {
-                      e.currentTarget.src = '/favicon.svg';
+                    variant="person"
+                    iconSize={20}
+                    sx={{
+                      width: 48,
+                      height: 48,
+                      borderRadius: '8px',
+                      flexShrink: 0,
                     }}
                   />
                   <Box>
@@ -540,9 +500,23 @@ function MovieDetailsPage() {
         </Stack>
 
         {reviewsLoading && (
-          <Typography sx={{ py: 4, textAlign: 'center', color: 'grey.700' }}>
-            Loading reviews...
-          </Typography>
+          <Grid container spacing={2} aria-hidden="true">
+            {Array.from({ length: 3 }, (_, index) => (
+              <Grid key={index} size={{ xs: 12, md: 4 }}>
+                <Box sx={{ bgcolor: 'grey.100', borderRadius: '12px', p: 2 }}>
+                  <Stack direction="row" spacing={1.5} sx={{ alignItems: 'center', mb: 1 }}>
+                    <Skeleton variant="circular" width={40} height={40} />
+                    <Box sx={{ flex: 1, minWidth: 0 }}>
+                      <Skeleton variant="text" width="65%" height={20} />
+                      <Skeleton variant="text" width="35%" height={16} />
+                    </Box>
+                  </Stack>
+                  <Skeleton variant="text" width="100%" height={18} />
+                  <Skeleton variant="text" width="80%" height={18} />
+                </Box>
+              </Grid>
+            ))}
+          </Grid>
         )}
 
         {!reviewsLoading && reviews.length === 0 && (

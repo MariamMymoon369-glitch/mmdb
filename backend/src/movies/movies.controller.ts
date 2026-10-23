@@ -9,9 +9,11 @@ import {
   Headers,
   Request,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { MoviesService } from './movies.service';
 import { CreateMovieDto } from './dto/CreateMovie.dto';
+import { CreatedMovieResponseDto } from './dto/movie-created-response.dto';
 import { GetMoviesDto } from './dto/get-movies.dto';
 import { RateMovieDto } from './dto/rate-movie.dto';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
@@ -33,14 +35,17 @@ export class MoviesController {
     return this.moviesService.findAll(query);
   }
 
+  @UseGuards(JwtAuthGuard)
   @Post()
-  create(@Body() createMovieDto: CreateMovieDto) {
+  create(
+    @Body() createMovieDto: CreateMovieDto,
+  ): Promise<CreatedMovieResponseDto> {
     return this.moviesService.create(createMovieDto);
   }
 
   @Get(':uuid')
   getMovie(
-    @Param('uuid') uuid: string,
+    @Param('uuid', new ParseUUIDPipe()) uuid: string,
     @Headers('authorization') authorization?: string,
   ) {
     return this.moviesService.findByUuid(uuid, authorization);
@@ -49,7 +54,7 @@ export class MoviesController {
   @UseGuards(JwtAuthGuard)
   @Put(':uuid/rating')
   async rate(
-    @Param('uuid') uuid: string,
+    @Param('uuid', new ParseUUIDPipe()) uuid: string,
     @Body() rateMovieDto: RateMovieDto,
     @Request() req: ExpressRequest & { user: AuthenticatedRequestUser },
   ) {
@@ -59,7 +64,7 @@ export class MoviesController {
   @UseGuards(JwtAuthGuard)
   @Get(':uuid/rating')
   async getMyRating(
-    @Param('uuid') uuid: string,
+    @Param('uuid', new ParseUUIDPipe()) uuid: string,
     @Request() req: ExpressRequest & { user: AuthenticatedRequestUser },
   ) {
     return await this.moviesService.getMyRating(uuid, req.user.userId);

@@ -13,8 +13,9 @@ import { useNavigate } from 'react-router-dom';
 import { type SearchResults } from '../../types/movie';
 import useFetch from '../../hooks/useFetch';
 import useDebouncedValue from '../../hooks/useDebouncedValue';
+import { API_BASE_URL } from '../../config/api';
+import PosterImage from '../common/PosterImage';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 const MIN_QUERY_LENGTH = 2;
 const DEBOUNCE_MS = 300;
 const RESULT_LIMIT = 5;
@@ -107,13 +108,19 @@ function SearchBar() {
     <Box
       ref={containerRef}
       onBlur={handleBlur}
-      sx={{ position: 'relative', width: '227px' }}
+      sx={{
+        position: 'relative',
+        width: { xs: '100%', md: '227px' },
+        maxWidth: '227px',
+        minWidth: 0,
+      }}
     >
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
-          width: '227px',
+          width: '100%',
+          minWidth: 0,
           height: '48px',
           border: (theme) => `1px solid ${theme.palette.grey[200]}`,
           borderRadius: '60px',
@@ -137,6 +144,7 @@ function SearchBar() {
             fontFamily: 'Inter, sans-serif',
             fontSize: '16px',
             width: '100%',
+            minWidth: 0,
           }}
         />
       </Box>
@@ -207,21 +215,17 @@ function SearchBar() {
                       onClick={() => handleSelect(item)}
                       sx={{ py: 1, px: 2, borderRadius: 0 }}
                     >
-                      <Box
-                        component="img"
-                        src={item.posterUrl || '/favicon.svg'}
+                      <PosterImage
+                        src={item.posterUrl}
                         alt={item.label}
+                        variant={item.type === 'person' ? 'person' : 'poster'}
+                        iconSize={14}
                         sx={{
                           width: 30,
                           height: 40,
                           borderRadius: '6px',
-                          objectFit: 'cover',
-                          bgcolor: 'grey.100',
                           mr: 1.5,
                           flexShrink: 0,
-                        }}
-                        onError={(event) => {
-                          event.currentTarget.src = '/favicon.svg';
                         }}
                       />
                       <Box sx={{ minWidth: 0 }}>

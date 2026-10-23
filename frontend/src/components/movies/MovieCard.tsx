@@ -1,16 +1,15 @@
 import React from 'react';
 import {
-  Box,
   Card,
   CardActionArea,
   CardContent,
-  CardMedia,
   Stack,
   Typography,
 } from '@mui/material';
 import StarIcon from '@mui/icons-material/Star';
 import { useNavigate } from 'react-router-dom';
 import { type Movie } from '../../types/movie';
+import PosterImage from '../common/PosterImage';
 
 interface MovieCardProps {
   movie: Movie;
@@ -53,29 +52,16 @@ export const MovieCard: React.FC<MovieCardProps> = React.memo(({ movie }) => {
             },
         }}
         >
-        <Box
+        <PosterImage
+          src={movie.posterUrl}
+          alt={`${movie.title} poster`}
+          iconSize={48}
           sx={{
             width: '100%',
             aspectRatio: '2 / 3',
             borderRadius: '12px',
-            overflow: 'hidden',
-            bgcolor: 'grey.100',
           }}
-        >
-          <CardMedia
-            component="img"
-            image={movie.posterUrl || '/favicon.svg'}
-            alt={`${movie.title} poster`}
-            sx={{
-              width: '100%',
-              height: '100%',
-              objectFit: 'cover',
-            }}
-            onError={(e) => {
-              e.currentTarget.src = '/favicon.svg';
-            }}
-          />
-        </Box>
+        />
 
         <CardContent sx={{ px: 0, pt: 1.5, pb: '0 !important', flexGrow: 1 }}>
           <Stack

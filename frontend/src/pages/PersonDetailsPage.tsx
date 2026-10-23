@@ -1,13 +1,5 @@
 import { useState } from 'react';
-import {
-  Box,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  Stack,
-  Typography,
-} from '@mui/material';
+import { Box, Stack, Typography } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import { useNavigate, useParams } from 'react-router-dom';
 import { type PersonDetails } from '../types/movie';
@@ -15,8 +7,11 @@ import useFetch from '../hooks/useFetch';
 import PersonalInfo from '../components/people/PersonalInfo';
 import ActingList from '../components/people/ActingList';
 import AwardsList from '../components/people/AwardsList';
+import PersonDetailsSkeleton from '../components/people/PersonDetailsSkeleton';
+import ErrorDialog from '../components/common/ErrorDialog';
+import PosterImage from '../components/common/PosterImage';
+import { API_BASE_URL } from '../config/api';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 const BIOGRAPHY_PREVIEW_LENGTH = 480;
 
@@ -43,53 +38,15 @@ function PersonDetailsPage() {
   };
 
   if (loading) {
-    return (
-      <Typography sx={{ py: 8, textAlign: 'center', color: 'grey.700' }}>
-        Loading...
-      </Typography>
-    );
+    return <PersonDetailsSkeleton />;
   }
 
   if (error || !person) {
     return (
-      <Dialog
+      <ErrorDialog
         open
-        sx={{
-          '& .MuiDialog-paper': {
-            borderRadius: '16px',
-            padding: '24px',
-            textAlign: 'center',
-            minWidth: { xs: '300px', sm: '400px' },
-            boxShadow: '0px 10px 30px rgba(0,0,0,0.1)',
-          },
-        }}
-      >
-        <DialogContent sx={{ pb: 0 }}>
-          <Typography variant="h4" sx={{ fontWeight: 800, color: 'red', mb: 2 }}>
-            oops!
-          </Typography>
-          <Typography sx={{ color: 'grey.600', fontSize: '1.1rem', mb: 3 }}>
-            Could not load this person. They may not exist.
-          </Typography>
-        </DialogContent>
-        <DialogActions sx={{ justifyContent: 'center', pb: 2 }}>
-          <Button
-            variant="contained"
-            onClick={() => window.location.reload()}
-            sx={{
-              borderRadius: '8px',
-              px: 4,
-              py: 1.5,
-              fontWeight: 700,
-              background: 'green',
-              textTransform: 'uppercase',
-              boxShadow: 'none',
-            }}
-          >
-            Retry
-          </Button>
-        </DialogActions>
-      </Dialog>
+        message="Could not load this person. They may not exist."
+      />
     );
   }
 
@@ -138,19 +95,15 @@ function PersonDetailsPage() {
         >
           <Stack direction={{ xs: 'column', md: 'row' }} spacing={4}>
             <Box sx={{ width: { xs: '100%', md: 270 }, flexShrink: 0 }}>
-              <Box
-                component="img"
-                src={person.photoUrl || '/favicon.svg'}
+              <PosterImage
+                src={person.photoUrl}
                 alt={`${person.name} picture`}
+                variant="person"
+                iconSize={64}
                 sx={{
                   width: '100%',
                   aspectRatio: '270 / 360',
                   borderRadius: '12px',
-                  objectFit: 'cover',
-                  bgcolor: 'grey.100',
-                }}
-                onError={(e) => {
-                  e.currentTarget.src = '/favicon.svg';
                 }}
               />
 

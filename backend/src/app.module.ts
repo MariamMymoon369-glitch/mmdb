@@ -1,6 +1,7 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import * as Joi from 'joi';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { UsersModule } from './users/users.module';
@@ -17,6 +18,22 @@ import { GenresModule } from './genres/genres.module';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      validationSchema: Joi.object({
+        PORT: Joi.number().port().default(3000),
+        CLIENT_URL: Joi.string().uri().default('http://localhost:5173'),
+        JWT_SECRET: Joi.string().min(1).required(),
+        DB_HOST: Joi.string().min(1).required(),
+        DB_PORT: Joi.number().port().required(),
+        DB_USERNAME: Joi.string().min(1).required(),
+        DB_PASSWORD: Joi.string().allow('').required(),
+        DB_DATABASE: Joi.string().min(1).required(),
+        TMDB_API_KEY: Joi.string().allow('').optional(),
+        TMDB_READ_TOKEN: Joi.string().allow('').optional(),
+      }).unknown(true),
+      validationOptions: {
+        allowUnknown: true,
+        abortEarly: false,
+      },
     }),
     MoviesModule,
 
