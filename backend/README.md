@@ -40,11 +40,12 @@ Copy `.env.example` to `.env` and fill in the values before starting the API.
 | `PORT` | No | API port. Defaults to `3000`. |
 | `CLIENT_URL` | No | Allowed frontend origin for CORS. Defaults to `http://localhost:5173`. |
 | `JWT_SECRET` | Yes | Secret used to sign authentication tokens. |
-| `DB_HOST` | Yes | PostgreSQL host. |
-| `DB_PORT` | Yes | PostgreSQL port. |
-| `DB_USERNAME` | Yes | PostgreSQL user. |
-| `DB_PASSWORD` | Yes | PostgreSQL password. May be empty for local trust authentication. |
-| `DB_DATABASE` | Yes | PostgreSQL database name. |
+| `DATABASE_URL` | No | Full PostgreSQL connection string, e.g. Neon's pooled URL. When set it takes precedence over the `DB_*` variables and enables TLS automatically. |
+| `DB_HOST` | Without `DATABASE_URL` | PostgreSQL host. |
+| `DB_PORT` | Without `DATABASE_URL` | PostgreSQL port. |
+| `DB_USERNAME` | Without `DATABASE_URL` | PostgreSQL user. |
+| `DB_PASSWORD` | Without `DATABASE_URL` | PostgreSQL password. May be empty for local trust authentication. |
+| `DB_DATABASE` | Without `DATABASE_URL` | PostgreSQL database name. |
 | `DB_SSL` | No | Set to `true` when the PostgreSQL server requires TLS, such as Neon or Render Postgres. Defaults to `false`. |
 | `DB_RUN_MIGRATIONS` | No | Set to `false` to skip TypeORM migrations on startup. Defaults to `true`; disable it for hosted databases that are restored from a dump. |
 | `TMDB_API_KEY` | No | TMDB v3 API key, used for seeds and actor details. |

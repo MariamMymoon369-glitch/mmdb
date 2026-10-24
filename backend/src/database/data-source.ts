@@ -12,14 +12,22 @@ import { MovieCrew } from '../movies/movie-crew.entity';
 import { Genre } from '../genres/genre.entity';
 import { MovieGenre } from '../movies/movie-genre.entity';
 
+const databaseUrl =
+  process.env.DATABASE_URL_UNPOOLED ?? process.env.DATABASE_URL;
+
 export default new DataSource({
   type: 'postgres',
-  host: process.env.DB_HOST,
-  port: Number(process.env.DB_PORT),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  ssl: process.env.DB_SSL === 'true' ? true : undefined,
+  // Migrations and dumps must use the direct (unpooled) endpoint.
+  ...(databaseUrl
+    ? { url: databaseUrl, ssl: true }
+    : {
+        host: process.env.DB_HOST,
+        port: Number(process.env.DB_PORT),
+        username: process.env.DB_USERNAME,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_DATABASE,
+        ssl: process.env.DB_SSL === 'true' ? true : undefined,
+      }),
 
   entities: [
     Movie,
