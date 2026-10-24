@@ -27,6 +27,8 @@ import { GenresModule } from './genres/genres.module';
         DB_USERNAME: Joi.string().min(1).required(),
         DB_PASSWORD: Joi.string().allow('').required(),
         DB_DATABASE: Joi.string().min(1).required(),
+        DB_SSL: Joi.boolean().default(false),
+        DB_RUN_MIGRATIONS: Joi.boolean().default(true),
         TMDB_API_KEY: Joi.string().allow('').optional(),
         TMDB_READ_TOKEN: Joi.string().allow('').optional(),
       }).unknown(true),
@@ -40,19 +42,29 @@ import { GenresModule } from './genres/genres.module';
     TypeOrmModule.forRootAsync({
       imports: [ConfigModule],
       inject: [ConfigService],
-      useFactory: (configService: ConfigService) => ({
-        type: 'postgres',
-        host: configService.get<string>('DB_HOST'),
-        port: configService.get<number>('DB_PORT'),
-        username: configService.get<string>('DB_USERNAME'),
-        password: configService.get<string>('DB_PASSWORD'),
-        database: configService.get<string>('DB_DATABASE'),
+      useFactory: (configService: ConfigService) => {
+        const ssl = configService.get<boolean | string>('DB_SSL');
+        const runMigrations = configService.get<boolean | string>(
+          'DB_RUN_MIGRATIONS',
+        );
 
-        autoLoadEntities: true,
-        synchronize: false,
-        migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
-        migrationsRun: true,
-      }),
+        return {
+          type: 'postgres',
+          host: configService.get<string>('DB_HOST'),
+          port: configService.get<number>('DB_PORT'),
+          username: configService.get<string>('DB_USERNAME'),
+          password: configService.get<string>('DB_PASSWORD'),
+          database: configService.get<string>('DB_DATABASE'),
+          ssl: ssl === true || ssl === 'true' ? true : undefined,
+
+          autoLoadEntities: true,
+          synchronize: false,
+          migrations: [__dirname + '/database/migrations/*{.ts,.js}'],
+          migrationsRun: !(
+            runMigrations === false || runMigrations === 'false'
+          ),
+        };
+      },
     }),
 
     UsersModule,

@@ -45,6 +45,8 @@ Copy `.env.example` to `.env` and fill in the values before starting the API.
 | `DB_USERNAME` | Yes | PostgreSQL user. |
 | `DB_PASSWORD` | Yes | PostgreSQL password. May be empty for local trust authentication. |
 | `DB_DATABASE` | Yes | PostgreSQL database name. |
+| `DB_SSL` | No | Set to `true` when the PostgreSQL server requires TLS, such as Neon or Render Postgres. Defaults to `false`. |
+| `DB_RUN_MIGRATIONS` | No | Set to `false` to skip TypeORM migrations on startup. Defaults to `true`; disable it for hosted databases that are restored from a dump. |
 | `TMDB_API_KEY` | No | TMDB v3 API key, used for seeds and actor details. |
 | `TMDB_READ_TOKEN` | No | TMDB v4 read token. Takes precedence over `TMDB_API_KEY` when both are set. |
 | `SEED_DEMO_USERS` | No | Set to `true` to create the demo seed accounts when `NODE_ENV=production`. |
