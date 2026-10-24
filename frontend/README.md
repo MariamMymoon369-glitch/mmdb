@@ -28,6 +28,15 @@ npm run start:dev
 
 Then start the frontend from this directory with `npm run dev`.
 
+## Environment variables
+
+Copy `.env.example` to `.env` and adjust it if the API is not running on the
+default URL.
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `VITE_API_BASE_URL` | Yes | Base URL of the MMDB backend API. The local example is `http://localhost:3000`. |
+
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
 Currently, two official plugins are available:

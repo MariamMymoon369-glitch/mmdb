@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { API_BASE_URL } from '../config/api';
 
 export interface AuthUser {
   id: number;
@@ -13,7 +14,6 @@ export interface AuthUser {
 export const AUTH_CHANGE_EVENT = 'mmdb:auth-change';
 export const SESSION_EXPIRED_EVENT = 'mmdb:session-expired';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export function getStoredToken(): string | null {
   return (

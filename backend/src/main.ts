@@ -2,9 +2,14 @@ import { NestFactory } from '@nestjs/core';
 import { ConfigService } from '@nestjs/config';
 import { AppModule } from './app.module';
 import { ValidationPipe } from '@nestjs/common';
+import helmet from 'helmet';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+
+  // Keep the API's existing asset behavior: the frontend loads TMDB images and
+  // Google Fonts directly, so no restrictive CSP is applied here.
+  app.use(helmet({ contentSecurityPolicy: false }));
 
   const configService = app.get(ConfigService);
   const clientUrl =

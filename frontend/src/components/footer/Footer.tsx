@@ -23,6 +23,7 @@ export const Footer: React.FC = () => {
         width: '100%',
         height: '214px', 
         boxSizing: 'border-box',
+        minWidth: 0,
        
       }}
     >

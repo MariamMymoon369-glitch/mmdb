@@ -1,6 +1,4 @@
-import { useState } from 'react';
-import { Box } from '@mui/material';
-import MovieIcon from '@mui/icons-material/Movie';
+import PosterImage from '../common/PosterImage';
 
 interface AwardPosterProps {
   posterUrl: string | null;
@@ -8,44 +6,19 @@ interface AwardPosterProps {
 }
 
 export function AwardPoster({ posterUrl, alt }: AwardPosterProps) {
-  const [failed, setFailed] = useState(false);
-
-  if (!posterUrl || failed) {
-    return (
-      <Box
-        aria-label="No poster available"
-        sx={{
-          width: 44,
-          height: 60,
-          borderRadius: '8px',
-          bgcolor: 'grey.200',
-          color: 'grey.500',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          flexShrink: 0,
-        }}
-      >
-        <MovieIcon sx={{ fontSize: 22 }} />
-      </Box>
-    );
-  }
-
   return (
-    <Box
-      component="img"
+    <PosterImage
       src={posterUrl}
       alt={alt}
+      iconSize={22}
       loading="lazy"
       sx={{
         width: 44,
         height: 60,
         borderRadius: '8px',
-        objectFit: 'cover',
-        bgcolor: 'grey.100',
+        bgcolor: 'grey.200',
         flexShrink: 0,
       }}
-      onError={() => setFailed(true)}
     />
   );
 }

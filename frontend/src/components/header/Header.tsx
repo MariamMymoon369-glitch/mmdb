@@ -6,9 +6,9 @@ import { useAuth } from '../../hooks/useAuth';
 import useFetch from '../../hooks/useFetch';
 import { type Genre } from '../../types/movie';
 import profileSvg from '../../assets/profile.svg';
+import { API_BASE_URL } from '../../config/api';
 import SearchBar from './SearchBar';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL ?? '';
 
 export const Header: React.FC = () => {
     const navigate = useNavigate();
@@ -72,8 +72,9 @@ export const Header: React.FC = () => {
         width: '100%',
         height: '72px', 
         alignItems: 'center', 
-        px: 4,
+        px: { xs: 2, md: 4 },
         margin: '0 auto',
+        minWidth: 0,
 }}>
    
 
@@ -83,11 +84,12 @@ export const Header: React.FC = () => {
         alignItems: 'center',
         justifyContent: 'space-between',
         width: '100%',
-        padding: '110px',
+        padding: { xs: 0, md: '110px' },
         height: '48px',
+        minWidth: 0,
       }}
     >
-     <Box sx={{ display: 'flex', alignItems: 'center', gap: '48px' }}>
+     <Box sx={{ display: 'flex', alignItems: 'center', gap: '48px', flexShrink: 0 }}>
     <Typography
         onClick={handleLogoClick}
         sx={{
@@ -101,7 +103,7 @@ export const Header: React.FC = () => {
       >
         MMDB
       </Typography>
-      <Box sx={{ display: 'flex', alignItems: 'center', gap: '34px',}}>
+      <Box sx={{ display: { xs: 'none', md: 'flex' }, alignItems: 'center', gap: '34px',}}>
         <Typography
             onClick={handleLogoClick}
                 sx={{
@@ -163,6 +165,9 @@ export const Header: React.FC = () => {
       <Box sx={{ display: 'flex',
                  alignItems: 'center',
                  gap: '12px',
+                 flex: '1 1 auto',
+                 minWidth: 0,
+                 justifyContent: 'flex-end',
             }}>
         <SearchBar />
 
@@ -213,6 +218,7 @@ export const Header: React.FC = () => {
                 textTransform: 'none',
                 cursor: 'pointer',
                 height: '19px',
+                display: { xs: 'none', md: 'inline-flex' },
               }}
             >
               Sign up

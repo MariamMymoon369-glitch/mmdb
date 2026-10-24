@@ -10,6 +10,7 @@ import { Movie } from './movie.entity';
 import { GetMoviesDto, MovieSortOption } from './dto/get-movies.dto';
 import { PaginatedMoviesResponseDto } from './dto/movie-response.dto';
 import { CreateMovieDto } from './dto/CreateMovie.dto';
+import { CreatedMovieResponseDto } from './dto/movie-created-response.dto';
 import {
   MovieDetailsResponseDto,
   PersonSummaryDto,
@@ -93,9 +94,23 @@ export class MoviesService {
     return links.map((link) => link.movieId);
   }
 
-  async create(createMovieDto: CreateMovieDto): Promise<Movie> {
+  async create(
+    createMovieDto: CreateMovieDto,
+  ): Promise<CreatedMovieResponseDto> {
     const newMovie = this.movieRepository.create(createMovieDto);
-    return await this.movieRepository.save(newMovie);
+    const saved = await this.movieRepository.save(newMovie);
+    return {
+      uuid: saved.uuid,
+      title: saved.title,
+      releaseYear: saved.releaseYear,
+      runtimeMinutes: saved.runtimeMinutes,
+      overview: saved.overview,
+      posterUrl: saved.posterUrl,
+      trailerUrl: saved.trailerUrl,
+      language: saved.language,
+      rating: saved.rating,
+      reviewCount: saved.reviewCount,
+    };
   }
 
   async findByUuid(

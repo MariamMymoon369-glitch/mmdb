@@ -31,6 +31,30 @@
 $ npm install
 ```
 
+Copy `.env.example` to `.env` and fill in the values before starting the API.
+
+## Environment variables
+
+| Variable | Required | Description |
+| --- | --- | --- |
+| `PORT` | No | API port. Defaults to `3000`. |
+| `CLIENT_URL` | No | Allowed frontend origin for CORS. Defaults to `http://localhost:5173`. |
+| `JWT_SECRET` | Yes | Secret used to sign authentication tokens. |
+| `DB_HOST` | Yes | PostgreSQL host. |
+| `DB_PORT` | Yes | PostgreSQL port. |
+| `DB_USERNAME` | Yes | PostgreSQL user. |
+| `DB_PASSWORD` | Yes | PostgreSQL password. May be empty for local trust authentication. |
+| `DB_DATABASE` | Yes | PostgreSQL database name. |
+| `DB_SSL` | No | Set to `true` when the PostgreSQL server requires TLS, such as Neon or Render Postgres. Defaults to `false`. |
+| `DB_RUN_MIGRATIONS` | No | Set to `false` to skip TypeORM migrations on startup. Defaults to `true`; disable it for hosted databases that are restored from a dump. |
+| `TMDB_API_KEY` | No | TMDB v3 API key, used for seeds and actor details. |
+| `TMDB_READ_TOKEN` | No | TMDB v4 read token. Takes precedence over `TMDB_API_KEY` when both are set. |
+| `SEED_DEMO_USERS` | No | Set to `true` to create the demo seed accounts when `NODE_ENV=production`. |
+
+At least one of `TMDB_API_KEY` or `TMDB_READ_TOKEN` is needed for TMDB-backed
+seeds and actor details. The demo accounts are created automatically outside
+production; production seeds skip them unless `SEED_DEMO_USERS=true`.
+
 ## Compile and run the project
 
 ```bash

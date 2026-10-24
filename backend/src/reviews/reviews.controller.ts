@@ -7,6 +7,7 @@ import {
   Param,
   Request,
   UseGuards,
+  ParseUUIDPipe,
 } from '@nestjs/common';
 import { ReviewsService } from './reviews.service';
 import { CreateReviewDto } from './dto/create-review.dto';
@@ -27,7 +28,7 @@ export class ReviewsController {
 
   @Get()
   getReviews(
-    @Param('movieUuid') movieUuid: string,
+    @Param('movieUuid', new ParseUUIDPipe()) movieUuid: string,
     @Query() query: GetReviewsDto,
   ) {
     return this.reviewsService.findAllForMovie(movieUuid, query);
@@ -36,7 +37,7 @@ export class ReviewsController {
   @UseGuards(JwtAuthGuard)
   @Post()
   async create(
-    @Param('movieUuid') movieUuid: string,
+    @Param('movieUuid', new ParseUUIDPipe()) movieUuid: string,
     @Body() createReviewDto: CreateReviewDto,
     @Request() req: ExpressRequest & { user: AuthenticatedRequestUser },
   ) {

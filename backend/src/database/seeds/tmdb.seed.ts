@@ -289,19 +289,28 @@ async function main() {
   );
 
   // --- 3. Users (password hashed by entity hook) ---
+  const demoUsersEnabled =
+    process.env.NODE_ENV !== 'production' ||
+    process.env.SEED_DEMO_USERS === 'true';
   const allUsers: User[] = await usersRepo.find();
-  for (const [first, last, handle] of SEED_USERS) {
-    const email = `${handle}@mmdb.local`;
-    if (allUsers.some((u) => u.email === email)) continue;
-    const user = usersRepo.create({
-      firstName: first,
-      lastName: last,
-      email,
-      displayName: handle,
-      passwordHash: 'mmdb-demo-1234',
-      profilePictureUrl: `https://ui-avatars.com/api/?name=${first}+${last}&background=random`,
-    });
-    allUsers.push(await usersRepo.save(user));
+  if (demoUsersEnabled) {
+    for (const [first, last, handle] of SEED_USERS) {
+      const email = `${handle}@mmdb.local`;
+      if (allUsers.some((u) => u.email === email)) continue;
+      const user = usersRepo.create({
+        firstName: first,
+        lastName: last,
+        email,
+        displayName: handle,
+        passwordHash: 'mmdb-demo-1234',
+        profilePictureUrl: `https://ui-avatars.com/api/?name=${first}+${last}&background=random`,
+      });
+      allUsers.push(await usersRepo.save(user));
+    }
+  } else {
+    console.log(
+      'Demo users skipped (NODE_ENV=production). Set SEED_DEMO_USERS=true to include them.',
+    );
   }
   console.log(`Users total: ${allUsers.length}`);
 
@@ -375,7 +384,6 @@ async function main() {
   console.log('Actor details hydrated:', JSON.stringify(hydration));
 
   const actorMovies = await importActorMovies(dataSource, {
-    total: 300,
     concurrency: 5,
     onProgress: (message) => console.log(message),
   });

@@ -11,6 +11,7 @@ import {
 import StarIcon from '@mui/icons-material/Star';
 import StarBorderIcon from '@mui/icons-material/StarBorder';
 import CloseIcon from '@mui/icons-material/Close';
+import PosterImage from '../common/PosterImage';
 
 interface RateMovieModalProps {
   open: boolean;
@@ -79,14 +80,11 @@ export default function RateMovieModal({
         </IconButton>
 
         <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
-          <Box
-            component="img"
-            src={posterUrl || '/favicon.svg'}
+          <PosterImage
+            src={posterUrl}
             alt={`${title} poster`}
-            sx={{ width: 56, height: 80, borderRadius: '8px', objectFit: 'cover' }}
-            onError={(e) => {
-              e.currentTarget.src = '/favicon.svg';
-            }}
+            iconSize={22}
+            sx={{ width: 56, height: 80, borderRadius: '8px', flexShrink: 0 }}
           />
           <Box>
             <Typography sx={{ color: 'text.secondary', fontSize: '0.75rem', letterSpacing: '0.08em' }}>
